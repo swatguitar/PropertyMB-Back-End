@@ -57,41 +57,18 @@ house.post('/upload', function(req,res,next){
       return res.json({originalname:req.file.originalname, uploadname:req.file.filename, ID_Property:req.body.ID_property});
   });
 });
-/*let Client = require('ssh2-sftp-client');
-let sftp = new Client();
-sftp.connect({
-  host: '165.22.247.44',
-  port: '22',
-  username: 'root',
-  password: 'NOTadmin1234'
-}).then(() => {
-  return sftp.list('/var/www');
-}).then((data) => {
-  console.log(data, 'the data info');
-}).catch((err) => {
-  console.log(err, 'catch error');
-});
+house.get('/imghouse', (req, res, next) => {
+
+  img.findAll()
+    .then(tasks => {
+      res.json(tasks)
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
 
 
-
-
-
-const FileFilter = (req, file, cd) => {
-  //reject a file
-  if (file.mimettype === 'image/jpeg' || file.mimettype === 'image/png') {
-    cd(null, true);
-  } else {
-    cd(null, false);
-  }
-
-
-}
-const upload = multer({
-  storage: storage, limits: {
-    fieldSize: 1024 * 1024 * 5
-  },
-  FileFilter: FileFilter
-})*/
 process.env.SECRET_KEY = 'secret'
 // Get All Tasks
 house.get('/houses', (req, res, next) => {
