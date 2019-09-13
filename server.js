@@ -1,3 +1,4 @@
+
 var express = require('express')
 var cors = require('cors')
 var bodyParser = require('body-parser')
@@ -26,12 +27,14 @@ var Houses = require('./routes/houses')
 var Lands = require('./routes/lands')
 var Users = require('./routes/Users')
 var Group = require('./routes/group')
+var Contact = require('./routes/contact')
 var location = require('./routes/location')
 
 app.use('/users', Users)
 app.use('/users', Group)
 app.use('/users', Lands)
 app.use('/users', Houses)
+app.use('/users', Contact)
 app.use('/users', location)
 
 app.listen(port, function() {

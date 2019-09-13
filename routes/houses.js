@@ -5,6 +5,29 @@ const jwt = require('jsonwebtoken')
 const House = require('../models/House')
 const img = require('../models/ImgProperty')
 const User = require('../models/User')
+//ftp
+var ftpClient = require('ftp-client'),
+  config = {
+    host: 'landvist.xyz',
+    port: 21,
+    user: 'u656477047',
+    password: 'tar15234'
+  },
+  options = {
+    logging: 'basic'
+  },
+
+  client = new ftpClient(config, options);
+  client.connect(function () {
+
+    client.upload(['uploads/images/**'], '/public_html/images', {
+      baseDir: 'uploads/images',
+      overwrite: 'older'
+    }, function (result) {
+      console.log(result);
+    });
+  });
+
 
 
 //addimg
@@ -13,7 +36,7 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/images')
   },
   filename: function (req, file, cb) {
-    cb(null, 'img_'+Date.now()+'.jpg')
+    cb(null, 'img_' + Date.now() + '.jpg')
   }
 })
 const FileFilter = (req, file, cd) => {
@@ -33,39 +56,69 @@ const upload = multer({
   FileFilter: FileFilter
 }).single('file');
 
-house.post('/upload', function(req,res,next){
-  upload(req,res,function(err){
-      if(err){
-          return res.status(501).json({error:err});
-      }
-      //do all database record saving activity
-        const imgData = {
-          ID_property: req.body.ID_property,
-          URL: req.file.filename
-        }
-        img.create(imgData)
-          .then(house => {
-            let token = jwt.sign(house.dataValues, process.env.SECRET_KEY, {
-              expiresIn: 1440
-            })
-            res.json({ token: token })
-          })
-          .catch(err => {
-            res.send('error: ' + err)
-          })
-        
-      return res.json({originalname:req.file.originalname, uploadname:req.file.filename, ID_Property:req.body.ID_property});
+house.post('/upload', function (req, res, next) {
+  upload(req, res, function (err) {
+    if (err) {
+      return res.status(501).json({ error: err });
+    }
+    //do all database record saving activity
+    const imgData = {
+      ID_property: req.body.ID_property,
+      URL: req.file.filename
+    }
+    img.create(imgData)
+      .then(house => {
+        let token = jwt.sign(house.dataValues, process.env.SECRET_KEY, {
+          expiresIn: 1440
+        })
+        res.json({ token: token })
+        return console.log("Upload Image success.");
+      })
+      .catch(err => {
+        res.send('error: ' + err)
+      })
+      House.update(
+        { ImageEX : req.file.filename },
+        { where: { ID_Property: req.body.ID_property } }
+      )
   });
+
+
 });
+
 house.get('/imghouse', (req, res, next) => {
+  client.connect(function () {
+
+    client.upload(['uploads/images/**'], '/public_html/images', {
+      baseDir: 'uploads/images',
+      overwrite: 'older'
+    }, function (result) {
+      console.log(result);
+    });
+  });
 
   img.findAll()
     .then(tasks => {
       res.json(tasks)
+      return console.log("Get Images property success.");
     })
     .catch(err => {
       res.send('error: ' + err)
     })
+
+})
+
+house.get('/uploadftp', (req, res, next) => {
+  client.connect(function () {
+
+    client.upload(['uploads/images/**'], '/public_html/images', {
+      baseDir: 'uploads/images',
+      overwrite: 'older'
+    }, function (result) {
+      console.log(result);
+    });
+  });
+  return console.log("Uploadftp success.");
 })
 
 
@@ -76,6 +129,7 @@ house.get('/houses', (req, res, next) => {
   House.findAll()
     .then(tasks => {
       res.json(tasks)
+      return console.log("Get All property success.");
     })
     .catch(err => {
       res.send('error: ' + err)
@@ -110,6 +164,7 @@ house.get('/imgProperty', (req, res) => {
       } else {
         res.send('house does not exist')
       }
+      throw new Error('house does not exist')
     })
     .catch(err => {
       res.send('error: ' + err)
@@ -219,6 +274,7 @@ house.post('/addhouse', (req, res) => {
         expiresIn: 1440
       })
       res.json({ token: token })
+      return console.log("บันทึกสำเร็จ.");
     })
     .catch(err => {
       res.send('error: ' + err)
@@ -236,6 +292,7 @@ house.delete('/task/:id', (req, res, next) => {
   })
     .then(() => {
       res.send('Task deleted!')
+      return console.log("สำเร็จ.");
     })
     .catch(err => {
       res.send('error: ' + err)
@@ -243,7 +300,7 @@ house.delete('/task/:id', (req, res, next) => {
 })
 
 // Update land
-house.put('/task/:id', (req, res, next) => {
+/*house.put('/task/:id', (req, res, next) => {
   if (!req.body.task_name) {
     res.status(400)
     res.json({
@@ -256,9 +313,10 @@ house.put('/task/:id', (req, res, next) => {
     )
       .then(() => {
         res.send('Task Updated!')
+        return console.log("สำเร็จ.");
       })
       .error(err => handleError(err))
   }
-})
+})*/
 
 module.exports = house

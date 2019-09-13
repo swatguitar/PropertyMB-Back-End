@@ -272,6 +272,9 @@ module.exports = db.sequelize.define(
     PPStatus: {
       type: Sequelize.STRING
     },
+    ImageEX : {
+      type: Sequelize.STRING
+    },
     Owner: {
       type: Sequelize.STRING
     },

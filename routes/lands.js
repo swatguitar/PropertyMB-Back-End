@@ -3,7 +3,120 @@ var land = express.Router()
 const jwt = require('jsonwebtoken')
 const Land = require('../models/Land')
 const User = require('../models/User')
+var multer = require('multer')
+const img = require('../models/ImgLand')
+//ftp
+var ftpClient = require('ftp-client'),
+  config = {
+    host: 'landvist.xyz',
+    port: 21,
+    user: 'u656477047',
+    password: 'tar15234'
+  },
+  options = {
+    logging: 'basic'
+  },
 
+  client = new ftpClient(config, options);
+  client.connect(function () {
+
+    client.upload(['uploads/images/**'], '/public_html/images', {
+      baseDir: 'uploads/images',
+      overwrite: 'older'
+    }, function (result) {
+      console.log(result);
+    });
+  });
+  //addimg
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/images')
+  },
+  filename: function (req, file, cb) {
+    cb(null, 'img_' + Date.now() + '.jpg')
+  }
+})
+const FileFilter = (req, file, cd) => {
+  //reject a file
+  if (file.mimettype === 'image/jpeg' || file.mimettype === 'image/png') {
+    cd(null, true);
+  } else {
+    cd(null, false);
+  }
+
+
+}
+const upload = multer({
+  storage: storage, limits: {
+    fieldSize: 1024 * 1024 * 5
+  },
+  FileFilter: FileFilter
+}).single('file');
+
+land.post('/uploadimageLand', function (req, res, next) {
+  upload(req, res, function (err) {
+    if (err) {
+      return res.status(501).json({ error: err });
+    }
+    //do all database record saving activity
+    const imgData = {
+      ID_land: req.body.ID_lands,
+      URL: req.file.filename
+    }
+    img.create(imgData)
+      .then(land => {
+        let token = jwt.sign(land.dataValues, process.env.SECRET_KEY, {
+          expiresIn: 1440
+        })
+        res.json({ token: token })
+        return console.log("Upload Image success.");
+      })
+      .catch(err => {
+        res.send('error: ' + err)
+      })
+      House.update(
+        { ImageEX : req.file.filename },
+        { where: { ID_Land: req.body.ID_land } }
+      )
+  });
+
+
+});
+
+land.get('/imgLand', (req, res, next) => {
+  client.connect(function () {
+
+    client.upload(['uploads/images/**'], '/public_html/images', {
+      baseDir: 'uploads/images',
+      overwrite: 'older'
+    }, function (result) {
+      console.log(result);
+    });
+  });
+
+  img.findAll()
+    .then(tasks => {
+      res.json(tasks)
+      return console.log("Get Images property success.");
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+
+})
+
+land.get('/uploadftpLand', (req, res, next) => {
+  client.connect(function () {
+
+    client.upload(['uploads/images/**'], '/public_html/images', {
+      baseDir: 'uploads/images',
+      overwrite: 'older'
+    }, function (result) {
+      console.log(result);
+    });
+  });
+  return console.log("Uploadftp success.");
+})
 
 process.env.SECRET_KEY = 'secret'
 // Get All land
@@ -50,7 +163,7 @@ land.post('/addland', (req, res) => {
     Costestimate: req.body.Costestimate,
     CostestimateB: req.body.CostestimateB,
     MarketPrice: req.body.MarketPrice,
-    PricePM: req.body.PricePM,
+    CodeProperty: req.body.CodeProperty,
     LandR: req.body.LandR,
     LandG: req.body.LandG,
     LandWA: req.body.LandWA,
@@ -107,6 +220,7 @@ land.post('/addland', (req, res) => {
               expiresIn: 1440
             })
             res.json({ token: token })
+            return console.log("บันทึกสำเร็จ.");
           })
           .catch(err => {
             res.send('error: ' + err)
