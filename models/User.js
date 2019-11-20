@@ -18,6 +18,9 @@ module.exports = db.sequelize.define(
     Email: {
       type: Sequelize.STRING
     },
+    UserType: {
+      type: Sequelize.STRING
+    },
     Password: {
       type: Sequelize.STRING
     },
@@ -39,7 +42,10 @@ module.exports = db.sequelize.define(
     Gender: {
       type: Sequelize.STRING
     },
-    Occupation:{
+    Token:{
+      type: Sequelize.STRING
+    },
+    Answer:{
       type: Sequelize.STRING
     },
     Created: {

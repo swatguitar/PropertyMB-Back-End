@@ -17,6 +17,12 @@ module.exports = db.sequelize.define(
     CodeDeed: {
       type: Sequelize.STRING
     },
+    TypeCode: {
+      type: Sequelize.STRING
+    },
+    CodeProperty: {
+      type: Sequelize.STRING
+    },
     SellPrice: {
       type: Sequelize.STRING
     },
@@ -27,6 +33,9 @@ module.exports = db.sequelize.define(
       type: Sequelize.STRING
     },
     MarketPrice: {
+      type: Sequelize.STRING
+    },
+    PriceWA: {
       type: Sequelize.STRING
     },
     LandR: {
@@ -86,25 +95,22 @@ module.exports = db.sequelize.define(
     LZipCode: {
       type: Sequelize.STRING
     },
-    ContactU: {
-      type: Sequelize.STRING
-    },
-    ContactS: {
-      type: Sequelize.STRING
-    },
     ContactUo: {
-      type: Sequelize.STRING
+      type: Sequelize.TINYINT
     },
     ContactSo: {
       type: Sequelize.STRING
     },
     ContactUt: {
-      type: Sequelize.STRING
+      type: Sequelize.TINYINT
     },
     ContactSt: {
       type: Sequelize.STRING
     },
-    Owner: {
+    ContactU: {
+      type: Sequelize.TINYINT
+    },
+    ContactS: {
       type: Sequelize.STRING
     },
     Place: {
@@ -132,7 +138,10 @@ module.exports = db.sequelize.define(
       type: Sequelize.TINYINT
     },
     Letc: {
-      type: Sequelize.TINYINT
+      type: Sequelize.STRING
+    },
+    WxD: {
+      type: Sequelize.STRING
     },
     LandAge: {
       type: Sequelize.STRING
@@ -140,13 +149,10 @@ module.exports = db.sequelize.define(
     PPStatus: {
       type: Sequelize.STRING
     },
-    TypeCode: {
+    ImageEX: {
       type: Sequelize.STRING
     },
-    PriceWA: {
-      type: Sequelize.STRING
-    },
-    WxD: {
+    Owner: {
       type: Sequelize.STRING
     },
     Created: {

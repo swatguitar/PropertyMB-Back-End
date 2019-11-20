@@ -194,6 +194,9 @@ module.exports = db.sequelize.define(
     sofa: {
       type: Sequelize.TINYINT
     },
+    bed: {
+      type: Sequelize.TINYINT
+    },
     shelves: {
       type: Sequelize.TINYINT
     },

@@ -5,7 +5,7 @@ module.exports = db.sequelize.define(
     'Contact',
     {
         ID_Contact: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING,
             primaryKey: true,
             autoIncrement: true
         },
