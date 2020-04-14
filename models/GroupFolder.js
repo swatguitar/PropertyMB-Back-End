@@ -2,21 +2,18 @@ const Sequelize = require('sequelize')
 const db = require('../database/db.js')
 
 module.exports = db.sequelize.define(
-  'Groups',
+  'GroupFolder',
   {
-    ID_Group: {
-      type: Sequelize.INTEGER,
+    ID_Folder: {
+      type: Sequelize.TINYINT,
       primaryKey: true,
       autoIncrement: true
     },
-    NameG: {
+    NameF: {
       type: Sequelize.STRING
     },
-    Img: {
-      type: Sequelize.STRING
-    },
-    Owner: {
-      type: Sequelize.STRING
+    ID_Group: {
+      type: Sequelize.TINYINT
     },
     Created: {
       type: Sequelize.DATE,

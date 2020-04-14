@@ -2,20 +2,20 @@ const Sequelize = require('sequelize')
 const db = require('../database/db.js')
 
 module.exports = db.sequelize.define(
-  'Groups',
+  'PropertyInGroups',
   {
-    ID_Group: {
+    ID_Item: {
       type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
-    NameG: {
+    ID_Property: {
       type: Sequelize.STRING
     },
-    Img: {
-      type: Sequelize.STRING
+    ID_Folder: {
+      type: Sequelize.TINYINT
     },
-    Owner: {
+    Status: {
       type: Sequelize.STRING
     },
     Created: {

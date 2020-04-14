@@ -5,6 +5,7 @@ const sequelize = new Sequelize('u656477047_ppmb', 'u656477047_user', 'tar15234'
   dialect: 'mysql',
   operatorsAliases: false,
 
+  timezone: '+07:00',
   pool: {
     max: 5,
     min: 0,

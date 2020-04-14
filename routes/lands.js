@@ -20,19 +20,12 @@ var ftpClient = require('ftp-client'),
   },
 
   client = new ftpClient(config, options);
-/*client.connect(function () {
+ client.connect();
 
-  client.upload(['uploads/images/**'], '/public_html/images', {
-    baseDir: 'uploads/images',
-    overwrite: 'older'
-  }, function (result) {
-    console.log(result);
-  });
-});*/
 //addimg
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/images')
+    cb(null, path.join(__dirname,'/../uploads/images'))
   },
   filename: function (req, file, cb) {
     cb(null, 'img_' + Date.now() + '.jpg')
@@ -55,35 +48,28 @@ const upload = multer({
   FileFilter: FileFilter
 }).single('file');
 
-land.post('/uploadimageLand', function (req, res, next) {
-  upload(req, res, function (err) {
-    if (err) {
-      res.json({ error: err });
-    }
-    //do all database record saving activity
-    const imgData = {
-      ID_land: req.body.ID_lands,
-      URL: req.file.filename
-    }
-    img.create(imgData)
-      .then(land => {
-        let token = jwt.sign(land.dataValues, process.env.SECRET_KEY, {
-          expiresIn: 1440
-        })
-        res.json({ token: token })
-        return console.log("Upload Image success.");
-      })
-      .catch(err => {
-        res.send('error: ' + err)
-      })
+
+land.put('/UpdateStatusL', (req, res, next) => {
+  if (!req.body.ID_Lands) {
+    res.status(400)
+    res.json({
+      error: '555'
+    })
+  } else {
     Land.update(
-      { ImageEX: req.file.filename },
-      { where: { ID_Lands: req.body.ID_lands } }
+      { 
+        PPStatus: req.body.PPStatus
+     
+         },
+      { where: {ID_ID_Lands: req.body.ID_Lands } }
     )
-  });
-
-
-});
+      .then(() => {
+        res.send('Task Updated!')
+        return console.log("สำเร็จ.");
+      })
+      .error(err => handleError(err))
+  }
+})
 land.put('/landUpdate', (req, res) => {
   var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
 
@@ -104,8 +90,9 @@ land.put('/landUpdate', (req, res) => {
     })
 })
 
-land.get('/imgLand', (req, res, next) => {
- /* client.connect(function () {
+land.put('/imgLand', (req, res, next) => {
+  var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+  /*client.connect(function () {
 
     client.upload(['uploads/images/**'], '/public_html/images', {
       baseDir: 'uploads/images',
@@ -115,7 +102,11 @@ land.get('/imgLand', (req, res, next) => {
     });
   });*/
 
-  img.findAll()
+  img.findAll({
+    where: {
+      ID_land: req.body.ID_Lands
+    }
+  })
     .then(tasks => {
       res.json(tasks)
       return console.log("Get Images property success.");
@@ -127,16 +118,12 @@ land.get('/imgLand', (req, res, next) => {
 })
 
 land.get('/uploadftpLand', (req, res, next) => {
-  client.connect(function () {
-
-    client.upload(['uploads/images/**'], '/public_html/images', {
-      baseDir: 'uploads/images',
-      overwrite: 'older'
-    }, function (result) {
-      console.log(result);
-    });
+  client.upload(['uploads/images/**'], '/public_html/images', {
+    baseDir: 'uploads/images',
+    overwrite: 'older'
+  }, function (result) {
+    console.log(result);
   });
-  return console.log("Uploadftp success.");
 })
 
 process.env.SECRET_KEY = 'secret'
@@ -245,7 +232,22 @@ land.post('/addland', (req, res) => {
 land.put('/land/Delete', (req, res, next) => {
   Land.destroy({
     where: {
-      ID_lands: req.body.ID_lands
+      ID_Lands: req.body.ID_Lands
+    }
+  })
+    .then(() => {
+      res.send('อสังหาถูกลบแล้ว')
+      return console.log("สำเร็จ.");
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+// delete land
+land.put('/land/DeleteImage', (req, res, next) => {
+  img.destroy({
+    where: {
+      ID_Photo: req.body.ID_Photo
     }
   })
     .then(() => {
@@ -311,7 +313,7 @@ land.put('/EditLand', (req, res, next) => {
         Insoi: req.body.Insoi,
         Letc: req.body.Letc,
         LandAge: req.body.LandAge,
-
+        Created: req.body.LandAge,
         WxD: req.body.WxD },
       { where: { ID_Lands: req.body.ID_Lands } }
     )

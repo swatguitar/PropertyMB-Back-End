@@ -2,25 +2,18 @@ const Sequelize = require('sequelize')
 const db = require('../database/db.js')
 
 module.exports = db.sequelize.define(
-  'Groups',
+  'Groupmembers',
   {
-    ID_Group: {
+    ID_member: {
       type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
-    NameG: {
-      type: Sequelize.STRING
+    ID_Group: {
+      type: Sequelize.TINYINT
     },
-    Img: {
-      type: Sequelize.STRING
-    },
-    Owner: {
-      type: Sequelize.STRING
-    },
-    Created: {
-      type: Sequelize.DATE,
-      defaultValue: Sequelize.NOW
+    ID_User: {
+      type: Sequelize.TINYINT
     }
   },
   {

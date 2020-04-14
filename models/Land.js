@@ -152,6 +152,9 @@ module.exports = db.sequelize.define(
     ImageEX: {
       type: Sequelize.STRING
     },
+    UserType: {
+      type: Sequelize.STRING
+    },
     Owner: {
       type: Sequelize.STRING
     },

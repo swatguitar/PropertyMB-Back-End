@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "thinking-armor-245907",
+  "private_key_id": "3c13fcde1c28a95086f764e9715cb597c8e77f0d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDQSft62aC5c0WH\n/d9ehxa8zAKYjChtnOw+fJv7hL45bmqJoRoa1SRvc5D/yMLZLytuukm5oB80EJm/\nYX9xlbRaHjgQOpEQf1TOhKa35AEvDry64wZjQ/HZIQ2V+bHjHXfTrafvW3W7lzOa\nmYFmt/r81gvd5+CYjMdMZcRD0te8RNQ9XK/6T9ma8Rlz1/S9ftvSfliJTaSMrCax\nD/lPL2j5y4+2WVKx7OUAWHeUZE/+r0rym6D1BmpSFVfo/zT043uvUxF3cCtqZgkJ\n6Skgg2uyLkX1SzlPTMLDUD43nYw1CF8KeU/DzCGccrzBDHe3xke4GhbXTkCDv10E\nlI4h9OuVAgMBAAECggEAKAKeIRoe6qC+8YGN382ZS4jw0rbRqUSkiNhM6kK0e7m/\nE1Lz/cWFqzcK2meJLkkGUc3NDbA5bjnmHsIuxfXY4Bq/8DYf2YhsFQOcNuTAaXau\nQEQN3RGXKntT7cQ6LINjmjDYen0aH3/K9N6Z4c5jkx/WxbieBw+71OwTiGe+8zX4\nwteO+haMLWHR/DnZGIlOgZTOR3NBi8gBV5XHmj0zAnMiWk7xZzGi6JINhAvSn0j9\n7AtZWPmoEsc9FBKZyRQ/JIz/UPF3/mdDlKg4e44MrL7+EIddOJxMiUul6t3SK2Gf\n8+uvKj9abFsQLgl4mjhkk1YmBNal4DXQiuADROEGPQKBgQDtodeIfcT2o/Mw1FKo\nRDTo0nbYoPyWxWa9cefTeNzbZyNSOrLHwF+AA+mK6aAghBFpFjMpYhMH5kBChrZk\n/ay/2/BVyGHr/7sEreH4ZaSHY2piaYWV2szWYcAgGuW5q898H34fbZt8nEF3zRuk\nluREb6tpHsE2FIB+PG1Jy67Y3wKBgQDgY4KtUdkmw4s16pTUCnQqDMC3MZgGF0dr\n+t5jXwUSH/vnO3yod669/TTycLPShkbSsK6N+hIMiWnrfK+hTYk/3cthf5PKVEDe\nFxiDW0OWTlMX4NNURTB9tGzaHwA8QTL2SUhwx8WggzkBlI4qZKPPwk6P47BOze7B\nKOWkbE+mCwKBgQCCepgPIQfSaYlx6VONgw4OPOn23sZyvuc/5FhnnHignAwf7Y0W\n80E82GkW1lsPH5Uzv3XOJkTO1JW6MZ/a6hM9sbVQVNu3qs50rklii+UAVg0nBkvM\nUbyhhkDpH/u9rGIcBGrLNPLoRCAKePvRruydyzcyXCm42R8IsYNMvuM9vwKBgQDZ\n2kMpGuoFZJxnwFS2eV/G45LHSXMblsZU47++Iqa9rifXnD2vImOZOZiKOTmdD5j7\nPWZ7mWqkmVUouGmb5bd3NlMbWc2XBq3j8fBut9CqwWiTKkiC7JnjsaRtMOP9nB9q\nVkPqm0oYSM6z5hMQvZz9PN0hfiHSoMVI6/fo5u99eQKBgBP6yxdMrO/k9qJwyXN6\nnYuuqYVBksUe9QQCgzXn8q5bgtwE6hLW90tSUjz7lOC/yGNDAQli0HiBMTjYV5jD\nQFhM025NdPAL2bb1Z4OmAsyiKHZETU6qy+VESpSK69XwunlYhvnMagwdXPn2i8nw\nyK5A8/reTgdYzH0X0o3pQdP1\n-----END PRIVATE KEY-----\n",
+  "client_email": "peopertymb@thinking-armor-245907.iam.gserviceaccount.com",
+  "client_id": "110266709315429773375",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/peopertymb%40thinking-armor-245907.iam.gserviceaccount.com"
+}
