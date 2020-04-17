@@ -9,10 +9,17 @@ const jwt = require('jsonwebtoken')
 var app = express()
 const serveIndex = require('serve-index');
 var port = process.env.PORT || 3001
-app.use(express.static( 'public'));
-app.use('/static', express.static(path.join(__dirname, 'public')))
-app.set('views', __dirname + '/views');
+
+
 app.use('/ftp', express.static(__dirname +'/uploads/images'), serveIndex('uploads/images', {'icons': true}));
+
+const aws = require('aws-sdk');
+
+app.set('views', './views');
+app.use(express.static('./public'));
+app.engine('html', require('ejs').renderFile);
+
+
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());

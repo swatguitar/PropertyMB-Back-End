@@ -3,6 +3,8 @@ const path = require('path')
 var house = express.Router()
 const cors = require('cors')
 var multer = require('multer')
+var aws = require('aws-sdk')
+var multerS3 = require('multer-s3')
 const Group = require('../models/Group')
 const jwt = require('jsonwebtoken')
 var fs = require('fs')
@@ -11,6 +13,41 @@ const Land = require('../models/Land')
 const img = require('../models/ImgProperty')
 const imgL = require('../models/ImgLand')
 const User = require('../models/User')
+
+const FileFilter = (req, file, cd) => {
+  //reject a file
+  if (file.mimettype === 'image/jpeg' || file.mimettype === 'image/png') {
+    cd(null, true);
+  } else {
+    cd(null, false);
+  }
+}
+
+aws.config.update({
+  secretAccessKey: 'P0f/1f+x4n8aXsTaRHXlgnscnoA0ccbvAUMCbr5w',
+  accessKeyId: 'AKIAIXQ74JGXTQPVIO2Q',
+  region: 'us-east-2'
+})
+var s3 = new aws.S3()
+ 
+var uploadS3 = multer({
+  limits: {
+  fieldSize: 1024 * 1024 * 5 // no larger than 5mb, you can change as needed.
+},
+FileFilter: FileFilter,
+  storage: multerS3({
+    s3: s3,
+    bucket: 'backendppmb',
+    metadata: function (req, file, cb) {
+      cb(null, {fieldName: file.fieldname});
+    },
+    acl: 'public-read',
+    key: function (req, file, cb) {
+      cb(null, 'img_' + Date.now() + '.jpg')
+    }
+  })
+})
+
 house.use(cors())
 var ftpClient = require('ftp-client'),
   config = {
@@ -49,22 +86,15 @@ const storageG = multer.diskStorage({
   }
 })
 
-const FileFilter = (req, file, cd) => {
-  //reject a file
-  if (file.mimettype === 'image/jpeg' || file.mimettype === 'image/png') {
-    cd(null, true);
-  } else {
-    cd(null, false);
-  }
 
-
-}
 const upload = multer({
   storage: storage, limits: {
     fieldSize: 1024 * 1024 * 5 // no larger than 5mb, you can change as needed.
   },
   FileFilter: FileFilter
 }).single('file');
+
+const uploadImg = uploadS3.single('file');
 
 const uploadG = multer({
   storage: storageG, limits: {
@@ -73,8 +103,36 @@ const uploadG = multer({
   FileFilter: FileFilter
 }).single('file');
 
+
+
+
+
+house.post('/uploadS3', function (req, res, next) {
+  uploadImg(req, res, function (err) {
+
+    if(err){
+      return res.status(422).send({error: [{title: 'File Upload Error', detail: err.message}]})
+    }
+   return res.json({'imageUrl': req.file.location})
+
+   const imgData = {
+    ID_property: req.body.ID_property,
+    URL: null
+  }
+   
+  });
+
+
+});
+
+
+
+
+
+
+
 house.post('/upload', function (req, res, next) {
-  upload(req, res, function (err) {
+  uploadImg(req, res, function (err) {
     if (err ) {
       res.json({ error: err });
     }
@@ -84,7 +142,7 @@ house.post('/upload', function (req, res, next) {
       URL: null
     }
     if (req.file) {
-      imgData.URL = req.file.filename
+      imgData.URL = req.file.location
       // handle that a file was uploaded
       img.create(imgData)
       .then(house => {
@@ -94,9 +152,43 @@ house.post('/upload', function (req, res, next) {
         res.send('error: ' + err) 
       })
     House.update(
-      { ImageEX: req.file.filename },
+      { ImageEX: req.file.location },
       { where: { ID_Property: req.body.ID_property } }
     )
+    }
+   
+  });
+
+
+});
+
+house.post('/uploadG', function (req, res, next) {
+  uploadImg(req, res, function (err) {
+    if (err ) {
+      res.json({ error: err });
+    }
+    //do all database record saving activity
+ 
+    if (req.file) {
+      Group.update({
+        Img: req.file.location
+      }, {
+        where: {
+          ID_Group: req.body.ID_Group
+        }
+      })
+      .then(group => {
+        let token = jwt.sign(group.dataValues, process.env.SECRET_KEY, {
+          expiresIn: 1440
+        })
+        res.json({
+          token: token
+        })
+      
+      })
+      .catch(err => {
+        res.send('error: ' + err)
+      })
     }
    
   });
