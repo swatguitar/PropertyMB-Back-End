@@ -3,6 +3,9 @@ var contact = express.Router()
 const jwt = require('jsonwebtoken')
 const Contact = require('../models/Contact')
 const multer = require('multer');
+const {
+  Op
+} = require("sequelize");
 
 process.env.SECRET_KEY = 'secret'
 contact.post('/addContact', (req, res) => {
@@ -30,12 +33,13 @@ contact.post('/addContact', (req, res) => {
 
 })
 
-contact.get('/contact', (req, res) => {
-  var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+contact.post('/contact', (req, res) => {
 
   Contact.findAll({
     where: {
-      CreateOwner: decoded.ID_User
+      ID_Contact:{
+        [Op.or]: [req.body.ContactU, req.body.ContactUo,req.body.ContactUt], 
+      } 
     }
   })
     .then(contact => {

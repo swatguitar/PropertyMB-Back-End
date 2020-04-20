@@ -7,30 +7,10 @@ const User = require('../models/User')
 var multer = require('multer')
 const img = require('../models/ImgLand')
 land.use(cors())
-//ftp
-var ftpClient = require('ftp-client'),
-  config = {
-    host: 'landvist.xyz',
-    port: 21,
-    user: 'u656477047',
-    password: 'tar15234'
-  },
-  options = {
-    logging: 'basic'
-  },
 
-  client = new ftpClient(config, options);
- client.connect();
 
 //addimg
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname,'/../uploads/images'))
-  },
-  filename: function (req, file, cb) {
-    cb(null, 'img_' + Date.now() + '.jpg')
-  }
-})
+
 const FileFilter = (req, file, cd) => {
   //reject a file
   if (file.mimettype === 'image/jpeg' || file.mimettype === 'image/png') {
@@ -41,12 +21,7 @@ const FileFilter = (req, file, cd) => {
 
 
 }
-const upload = multer({
-  storage: storage, limits: {
-    fieldSize: 1024 * 1024 * 5
-  },
-  FileFilter: FileFilter
-}).single('file');
+
 
 
 land.put('/UpdateStatusL', (req, res, next) => {
@@ -92,15 +67,6 @@ land.put('/landUpdate', (req, res) => {
 
 land.put('/imgLand', (req, res, next) => {
   var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
-  /*client.connect(function () {
-
-    client.upload(['uploads/images/**'], '/public_html/images', {
-      baseDir: 'uploads/images',
-      overwrite: 'older'
-    }, function (result) {
-      console.log(result);
-    });
-  });*/
 
   img.findAll({
     where: {
@@ -117,14 +83,7 @@ land.put('/imgLand', (req, res, next) => {
 
 })
 
-land.get('/uploadftpLand', (req, res, next) => {
-  client.upload(['uploads/images/**'], '/public_html/images', {
-    baseDir: 'uploads/images',
-    overwrite: 'older'
-  }, function (result) {
-    console.log(result);
-  });
-})
+
 
 process.env.SECRET_KEY = 'secret'
 // Get All land

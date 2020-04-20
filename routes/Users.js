@@ -170,10 +170,12 @@ users.post('/sendEmail', (req, res) => {
                   '<p style="text-align: center">Copyright@PropertyManagement 2018 - 2019</p>'
               }
               transporter.sendMail(mailOptions, function (err, info) {
-                if (err)
+                if (err){
                   console.log(err)
-                else
-                  res.json({ succress: 'กรุณาตรวจสอบอีเมลของท่าน' })
+                  res.json('กรุณาลองใหม่อีกครั้ง')
+                }else{
+                  res.json('กรุณาตรวจสอบอีเมลของท่าน เราได้รีเซ็ตรหัสไปยังอีเมลที่ท่านเคยลงทะเบียนไว้ ')
+                }  
               });
             }
           })
@@ -181,7 +183,7 @@ users.post('/sendEmail', (req, res) => {
             res.send('error: ' + err)
           })
       } else {
-        res.json({ error: 'ไม่พบอีเมลนี้' })
+        res.json({ error: 'ไม่พบอีเมล' })
       }
     })
     .catch(err => {
@@ -280,7 +282,7 @@ users.put('/removeimg', (req, res) => {
             res.send('error: ' + err)
           })
       } else {
-        res.json({ error: 'ไม่พบผู้ใช้นี้' })
+        res.json({ error: 'ไม่พบอีเมลนี้ในระบบ' })
       }
     })
     .catch(err => {
@@ -299,7 +301,7 @@ users.post('/GetEmail', (req, res) => {
       if (user) {
         res.json(user)
       } else {
-        res.json({ error: 'ไม่พบอีเมลนี้' })
+        res.json({ error: 'ไม่พบอีเมลนี้ในระบบ' })
       }
     })
     .catch(err => {

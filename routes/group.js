@@ -138,6 +138,8 @@ group.post('/createfolder', (req, res) => {
 
 
 })
+
+//************* add property into group *************
 group.post('/addAnnouce', (req, res) => {
   const groupData = {
     ID_Property: req.body.ID_Property,
@@ -150,7 +152,6 @@ group.post('/addAnnouce', (req, res) => {
         ID_Property: req.body.ID_Property
       }
     })
-    //TODO bcrypt
     .then(Property => {
       if (!Property) {
         TypeAn.create(groupData)
@@ -158,16 +159,14 @@ group.post('/addAnnouce', (req, res) => {
             let token = jwt.sign(group.dataValues, process.env.SECRET_KEY, {
               expiresIn: 1440
             })
-            res.json({
-              token: token
-            })
+            res.json( "เพิ่มอสังหาฯลงกลุ่มสำเร็จ")
           })
           .catch(err => {
             res.send('error: ' + err)
           })
       } else {
         res.json({
-          error: 'มีอสังหานี้อยู่แล้ว'
+          error: 'มีอสังหานี้ในกลุ่มแล้ว'
         })
       }
     })
