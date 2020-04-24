@@ -9,26 +9,7 @@ const TypeAn = require('../models/PropertyInGroups')
 const User = require('../models/User')
 const multer = require('multer');
 group.use(cors())
-var ftpClient = require('ftp-client'),
-  config = {
-    host: 'landvist.xyz',
-    port: 21,
-    user: 'u656477047',
-    password: 'tar15234'
-  },
-  options = {
-    logging: 'basic'
-  },
 
-  client = new ftpClient(config, options);
-client.connect();
-client.upload(['uploads/images/**'], '/public_html/images', {
-  baseDir: 'uploads/images',
-  overwrite: 'older'
-}, function (result) {
-  console.log(result);
-});
-//addi
 
 
 const storage = multer.diskStorage({

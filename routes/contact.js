@@ -6,8 +6,10 @@ const multer = require('multer');
 const {
   Op
 } = require("sequelize");
-
 process.env.SECRET_KEY = 'secret'
+
+
+//************* Add contact *************
 contact.post('/addContact', (req, res) => {
   var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
   const contactData = {
@@ -24,22 +26,41 @@ contact.post('/addContact', (req, res) => {
         expiresIn: 1440
       })
       res.json({ token: token })
-      
     })
     .catch(err => {
       res.send('error: ' + err)
     })
-
-
 })
 
-contact.post('/contact', (req, res) => {
 
+//************* get contact to show in property detail *************
+contact.post('/contactDetail', (req, res) => {
   Contact.findAll({
     where: {
       ID_Contact:{
         [Op.or]: [req.body.ContactU, req.body.ContactUo,req.body.ContactUt], 
       } 
+    }
+  })
+    .then(contact => {
+      if (contact) {
+        res.json(contact)
+        
+      } else {
+        res.send('contact does not exist')
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+
+//************* get contact to auto complete *************
+contact.get('/contact', (req, res) => {
+  var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+  Contact.findAll({
+    where: {
+      CreateOwner: decoded.ID_User 
     }
   })
     .then(contact => {

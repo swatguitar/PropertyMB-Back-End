@@ -12,6 +12,9 @@ module.exports = db.sequelize.define(
     URL: {
       type: Sequelize.STRING
     },
+    File_Name: {
+      type: Sequelize.STRING
+    },
     ID_property: {
       type: Sequelize.STRING
     }

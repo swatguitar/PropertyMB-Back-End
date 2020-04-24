@@ -34,8 +34,8 @@ const FileFilter = (req, file, cd) => {
 }
 //************* Config Amazon s3 bucket *************
 aws.config.update({
-  secretAccessKey: 'P0f/1f+x4n8aXsTaRHXlgnscnoA0ccbvAUMCbr5w',
-  accessKeyId: 'AKIAIXQ74JGXTQPVIO2Q',
+  secretAccessKey: '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',
+  accessKeyId: 'AKIAJMSJLXE6OBJ5OFJA',
   region: 'us-east-2'
 })
 var s3 = new aws.S3()
@@ -101,34 +101,34 @@ house.get('/house', (req, res) => {
 house.post('/filterHouse', (req, res) => {
   var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
   condition = ''
-  if(req.body != null){
-  if(req.body.PropertyType != '' && req.body.PropertyType != null){
-    condition += " AND PropertyType = '"+req.body.PropertyType+"'"
+  if (req.body != null) {
+    if (req.body.PropertyType != '' && req.body.PropertyType != null) {
+      condition += " AND PropertyType = '" + req.body.PropertyType + "'"
+    }
+    if (req.body.LProvince != '' && req.body.LProvince != null) {
+      condition += " AND LProvince = '" + req.body.LProvince + "'"
+    }
+    if (req.body.LAmphur != '' && req.body.LAmphur != null) {
+      condition += " AND LAmphur = '" + req.body.LAmphur + "'"
+    }
+    if (req.body.LDistrict != '' && req.body.LDistrict != null) {
+      condition += " AND LDistrict = '" + req.body.LDistrict + "'"
+    }
+    if (req.body.HomeCondition != '' && req.body.HomeCondition != null) {
+      condition += " AND HomeCondition = '" + req.body.HomeCondition + "'"
+    }
+    if (req.body.PriceMax != null) {
+      condition += " AND SellPrice <= '" + req.body.PriceMax + "'"
+    }
+    if (req.body.PriceMin != null) {
+      condition += " AND SellPrice >= '" + req.body.PriceMin + "'"
+    }
   }
-  if(req.body.LProvince != '' && req.body.LProvince != null){
-    condition += " AND LProvince = '"+req.body.LProvince+"'"
-  }
-  if(req.body.LAmphur != '' && req.body.LAmphur != null){
-    condition += " AND LAmphur = '"+req.body.LAmphur+"'"
-  }
-  if(req.body.LDistrict != '' && req.body.LDistrict != null){
-    condition += " AND LDistrict = '"+req.body.LDistrict+"'"
-  }
-  if(req.body.HomeCondition != '' && req.body.HomeCondition != null){
-    condition += " AND HomeCondition = '"+req.body.HomeCondition+"'"
-  }
-  if(req.body.PriceMax != null){
-    condition += " AND SellPrice <= '"+req.body.PriceMax+"'"
-  }
-  if(req.body.PriceMin != null){
-    condition += " AND SellPrice >= '"+req.body.PriceMin+"'"
-  }
-}
- db.sequelize.query(
-      "SELECT * FROM propertys WHERE Owner ='"+ decoded.ID_User+"' "+condition, {
+  db.sequelize.query(
+      "SELECT * FROM propertys WHERE Owner ='" + decoded.ID_User + "' " + condition, {
         type: Op.SELECT
       }
-    ) .then(house => {
+    ).then(house => {
       if (house) {
         res.json(house[0])
         //console.log(condition)
@@ -141,7 +141,7 @@ house.post('/filterHouse', (req, res) => {
     .catch(err => {
       res.send('error: ' + err)
     })
-   
+
 })
 
 //************* get house by property id *************
@@ -175,9 +175,9 @@ house.put('/imghouse', (req, res, next) => {
         ID_property: req.body.ID_Property
       }
     }).then(Image => {
-      if(Image){
+      if (Image) {
         res.json(Image)
-      }else{
+      } else {
         res.json({
           error: "ไม่พบรูปภาพ"
         })
@@ -188,21 +188,110 @@ house.put('/imghouse', (req, res, next) => {
     })
 
 })
-house.post('/upload', function (req, res, next) {
+
+//************* Delete house && image house *************
+house.put('/house/Delete', (req, res, next) => {
+  House.destroy({
+    where: {
+      ID_Property: req.body.ID_Property
+    }
+  })
+  img.destroy({
+      where: {
+        ID_property: req.body.ID_Property
+      }
+    })
+    .then(() => {
+      res.json('อสังหาถูกลบแล้ว')
+    })
+    .catch(err => {
+      res.json('error: ' + err)
+    })
+
+})
+
+//************* Delete image house *************
+house.put('/house/DeleteImage', (req, res, next) => {
+  img.findAll({
+      where: {
+        ID_Photo: req.body.ID_Photo
+      }
+    }).then(Image => {
+      if (Image) {
+        data = Image.map(row => {
+          return row.File_Name
+        });
+       if (data != null) {
+          params = {
+            Bucket: 'backendppmb',
+            Key: data[0]
+          };
+          s3.deleteObject(params, function (err, data) {
+            if (err) console.log(err, err.stack); // error
+            else console.log(data); // deleted
+          });
+          img.destroy({
+            where: {
+              ID_Photo: req.body.ID_Photo
+            }
+          }).then(() => {
+            res.json('ลบรูปภาพเสำเร็จ')
+          })
+          .catch(err => {
+            res.json('error: ' + err)
+          })
+        }
+      } else {
+        res.json({
+          error: "ไม่พบรูปภาพ"
+        })
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+
+    
+})
+
+//************* Update PP Status house *************
+house.put('/UpdateStatus', (req, res, next) => {
+  if (!req.body.ID_Property) {
+    res.status(400)
+    res.json({
+      error: 'กรุณาเลือกอสังหาฯ'
+    })
+  } else {
+    House.update({
+        PPStatus: req.body.PPStatus
+      }, {
+        where: {
+          ID_Property: req.body.ID_Property
+        }
+      })
+      .then(() => {
+        res.json('แก้ไขสำเร็จ')
+      })
+      .error(err => handleError(err))
+  }
+})
+
+//************* Upload image house *************
+house.post('/uploadImageH', function (req, res, next) {
   uploadImg(req, res, function (err) {
     if (err) {
       res.json({
         error: err
       });
     }
-    //do all database record saving activity
     const imgData = {
       ID_property: req.body.ID_property,
-      URL: null
+      URL: null,
+      File_Name: null
     }
     if (req.file) {
-      imgData.URL = req.file.filename
-      // handle that a file was uploaded
+      imgData.URL = req.file.location
+      imgData.File_Name = req.file.filename
       img.create(imgData)
         .then(house => {
           res.json(house)
@@ -211,19 +300,253 @@ house.post('/upload', function (req, res, next) {
           res.send('error: ' + err)
         })
       House.update({
-        ImageEX: req.file.filename
+        ImageEX: req.file.location
       }, {
         where: {
           ID_Property: req.body.ID_property
         }
       })
     }
-
   });
-
-
 });
 
+//************* Update data house *************
+house.put('/houseUpdate', (req, res) => {
+  var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+  House.findAll({
+      where: {
+        Owner: decoded.ID_User,
+        ID_Property: req.body.ID_Property
+      }
+    })
+    .then(house => {
+      if (house) {
+        res.json(house)
+      } else {
+        res.send('house does not exist')
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+
+//************* Insert data house *************
+house.post('/addhouse', (req, res) => {
+  var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+  const houseData = {
+    ID_Property: req.body.ID_Property,
+    PropertyType: req.body.PropertyType,
+    AnnounceTH: req.body.AnnounceTH,
+    CodeDeed: req.body.CodeDeed,
+    SellPrice: req.body.SellPrice,
+    Costestimate: req.body.Costestimate,
+    CostestimateB: req.body.CostestimateB,
+    MarketPrice: req.body.MarketPrice,
+    BathRoom: req.body.BathRoom,
+    BedRoom: req.body.BedRoom,
+    CarPark: req.body.CarPark,
+    HouseArea: req.body.HouseArea,
+    Floor: req.body.Floor,
+    LandR: req.body.LandR,
+    LandG: req.body.LandG,
+    LandWA: req.body.LandWA,
+    LandU: req.body.LandU,
+    HomeCondition: req.body.HomeCondition,
+    BuildingAge: req.body.BuildingAge,
+    BuildFD: req.body.BuildFD,
+    BuildFM: req.body.BuildFM,
+    BuildFY: req.body.BuildFY,
+    Directions: req.body.Directions,
+    RoadType: req.body.RoadType,
+    RoadWide: req.body.RoadWide,
+    GroundLevel: req.body.GroundLevel,
+    GroundValue: req.body.GroundValue,
+    MoreDetails: req.body.MoreDetails,
+    Latitude: req.body.Latitude,
+    Longitude: req.body.Longitude,
+    AsseStatus: req.body.AsseStatus,
+    ObservationPoint: req.body.ObservationPoint,
+    Location: req.body.Location,
+    LProvince: req.body.LProvince,
+    LAmphur: req.body.LAmphur,
+    LDistrict: req.body.LDistrict,
+    LZipCode: req.body.LZipCode,
+    ContactUo: req.body.ContactUo,
+    ContactSo: req.body.ContactSo,
+    ContactUt: req.body.ContactUt,
+    ContactSt: req.body.ContactSt,
+    ContactU: req.body.ContactU,
+    ContactS: req.body.ContactS,
+    Blind: req.body.Blind,
+    Neareducation: req.body.Neareducation,
+    Cenmarket: req.body.Cenmarket,
+    Market: req.body.Market,
+    River: req.body.River,
+    Mainroad: req.body.Mainroad,
+    Insoi: req.body.Insoi,
+    Letc: req.body.Letc,
+    airconditioner: req.body.airconditioner,
+    afan: req.body.afan,
+    AirPurifier: req.body.AirPurifier,
+    Waterheater: req.body.Waterheater,
+    WIFI: req.body.WIFI,
+    TV: req.body.TV,
+    refrigerator: req.body.refrigerator,
+    microwave: req.body.microwave,
+    gasstove: req.body.gasstove,
+    wardrobe: req.body.wardrobe,
+    TCset: req.body.TCset,
+    sofa: req.body.sofa,
+    bed: req.body.bed,
+    shelves: req.body.shelves,
+    CCTV: req.body.CCTV,
+    Securityguard: req.body.Securityguard,
+    pool: req.body.pool,
+    Fitness: req.body.Fitness,
+    Publicarea: req.body.Publicarea,
+    ShuttleBus: req.body.ShuttleBus,
+    WVmachine: req.body.WVmachine,
+    CWmachine: req.body.CWmachine,
+    Elevator: req.body.Elevator,
+    Lobby: req.body.Lobby,
+    ATM: req.body.ATM,
+    BeautySalon: req.body.BeautySalon,
+    Balcony: req.body.Balcony,
+    EventR: req.body.EventR,
+    MeetingR: req.body.MeetingR,
+    LivingR: req.body.LivingR,
+    Hairsalon: req.body.Hairsalon,
+    Laundry: req.body.Laundry,
+    Store: req.body.Store,
+    Supermarket: req.body.Supermarket,
+    CStore: req.body.CStore,
+    MFee: req.body.MFee,
+    Kitchen: req.body.Kitchen,
+    LandAge: req.body.LandAge,
+    Owner: decoded.ID_User,
+  }
+  House.create(houseData)
+    .then(house => {
+      if(!house){
+        res.json("ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีครั้ง")
+      }else{
+        res.json("บันทึกสำเร็จ กดปุ่ม 'ถัดไป'") 
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+
+//************* Edit data house *************
+house.put('/EditHouse', (req, res, next) => {
+  if (!req.body.ID_Property) {
+    res.status(400)
+    res.json({
+      error: 'ไม่พบอสังหาฯ'
+    })
+  } else {
+    House.update({
+        PropertyType: req.body.PropertyType,
+        AnnounceTH: req.body.AnnounceTH,
+        CodeDeed: req.body.CodeDeed,
+        SellPrice: req.body.SellPrice,
+        Costestimate: req.body.Costestimate,
+        CostestimateB: req.body.CostestimateB,
+        MarketPrice: req.body.MarketPrice,
+        BathRoom: req.body.BathRoom,
+        BedRoom: req.body.BedRoom,
+        CarPark: req.body.CarPark,
+        HouseArea: req.body.HouseArea,
+        Floor: req.body.Floor,
+        LandR: req.body.LandR,
+        LandG: req.body.LandG,
+        LandWA: req.body.LandWA,
+        LandU: req.body.LandU,
+        HomeCondition: req.body.HomeCondition,
+        BuildingAge: req.body.BuildingAge,
+        BuildFD: req.body.BuildFD,
+        BuildFM: req.body.BuildFM,
+        BuildFY: req.body.BuildFY,
+        Directions: req.body.Directions,
+        RoadType: req.body.RoadType,
+        RoadWide: req.body.RoadWide,
+        GroundLevel: req.body.GroundLevel,
+        GroundValue: req.body.GroundValue,
+        MoreDetails: req.body.MoreDetails,
+        Latitude: req.body.Latitude,
+        Longitude: req.body.Longitude,
+        AsseStatus: req.body.AsseStatus,
+        ObservationPoint: req.body.ObservationPoint,
+        Location: req.body.Location,
+        LProvince: req.body.LProvince,
+        LAmphur: req.body.LAmphur,
+        LDistrict: req.body.LDistrict,
+        LZipCode: req.body.LZipCode,
+        ContactUo: req.body.ContactUo,
+        ContactSo: req.body.ContactSo,
+        ContactUt: req.body.ContactUt,
+        ContactSt: req.body.ContactSt,
+        ContactU: req.body.ContactU,
+        ContactS: req.body.ContactS,
+        Blind: req.body.Blind,
+        Neareducation: req.body.Neareducation,
+        Cenmarket: req.body.Cenmarket,
+        Market: req.body.Market,
+        River: req.body.River,
+        Mainroad: req.body.Mainroad,
+        Insoi: req.body.Insoi,
+        Letc: req.body.Letc,
+        airconditioner: req.body.airconditioner,
+        afan: req.body.afan,
+        AirPurifier: req.body.AirPurifier,
+        Waterheater: req.body.Waterheater,
+        WIFI: req.body.WIFI,
+        TV: req.body.TV,
+        refrigerator: req.body.refrigerator,
+        microwave: req.body.microwave,
+        gasstove: req.body.gasstove,
+        wardrobe: req.body.wardrobe,
+        TCset: req.body.TCset,
+        sofa: req.body.sofa,
+        bed: req.body.bed,
+        shelves: req.body.shelves,
+        CCTV: req.body.CCTV,
+        Securityguard: req.body.Securityguard,
+        pool: req.body.pool,
+        Fitness: req.body.Fitness,
+        Publicarea: req.body.Publicarea,
+        ShuttleBus: req.body.ShuttleBus,
+        WVmachine: req.body.WVmachine,
+        CWmachine: req.body.CWmachine,
+        Elevator: req.body.Elevator,
+        Lobby: req.body.Lobby,
+        ATM: req.body.ATM,
+        BeautySalon: req.body.BeautySalon,
+        Balcony: req.body.Balcony,
+        EventR: req.body.EventR,
+        MeetingR: req.body.MeetingR,
+        LivingR: req.body.LivingR,
+        Hairsalon: req.body.Hairsalon,
+        Laundry: req.body.Laundry,
+        Store: req.body.Store,
+        Supermarket: req.body.Supermarket,
+        CStore: req.body.CStore,
+        MFee: req.body.MFee,
+        Kitchen: req.body.Kitchen,
+        LandAge: req.body.LandAge,
+      }, {
+        where: {
+          ID_Property: req.body.ID_Property
+        }
+      })
+      .then(() => {
+        res.json('อัพเดทข้อมูล สำเร็จ')
+      })
+      .error(err => handleError(err))
+  }
+})
 
 house.post('/uploadG', function (req, res, next) {
   uploadG(req, res, function (err) {
@@ -334,26 +657,7 @@ house.post('/uploadprofile', function (req, res, next) {
 
 
 
-house.put('/houseUpdate', (req, res) => {
-  var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
 
-  House.findAll({
-      where: {
-        Owner: decoded.ID_User,
-        ID_Property: req.body.ID_Property
-      }
-    })
-    .then(house => {
-      if (house) {
-        res.json(house)
-      } else {
-        res.send('house does not exist')
-      }
-    })
-    .catch(err => {
-      res.send('error: ' + err)
-    })
-})
 
 house.get('/imgProperty', (req, res) => {
   img.findAll()
@@ -373,280 +677,13 @@ house.get('/imgProperty', (req, res) => {
 
 
 // Addland
-house.post('/addhouse', (req, res) => {
-  var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
-  const houseData = {
-    ID_Property: req.body.ID_Property,
-    PropertyType: req.body.PropertyType,
-    AnnounceTH: req.body.AnnounceTH,
-    CodeDeed: req.body.CodeDeed,
-    SellPrice: req.body.SellPrice,
-    Costestimate: req.body.Costestimate,
-    CostestimateB: req.body.CostestimateB,
-    MarketPrice: req.body.MarketPrice,
-    BathRoom: req.body.BathRoom,
-    BedRoom: req.body.BedRoom,
-    CarPark: req.body.CarPark,
-    HouseArea: req.body.HouseArea,
-    Floor: req.body.Floor,
-    LandR: req.body.LandR,
-    LandG: req.body.LandG,
-    LandWA: req.body.LandWA,
-    LandU: req.body.LandU,
-    HomeCondition: req.body.HomeCondition,
-    BuildingAge: req.body.BuildingAge,
-    BuildFD: req.body.BuildFD,
-    BuildFM: req.body.BuildFM,
-    BuildFY: req.body.BuildFY,
-    Directions: req.body.Directions,
-    RoadType: req.body.RoadType,
-    RoadWide: req.body.RoadWide,
-    GroundLevel: req.body.GroundLevel,
-    GroundValue: req.body.GroundValue,
-    MoreDetails: req.body.MoreDetails,
-    Latitude: req.body.Latitude,
-    Longitude: req.body.Longitude,
-    AsseStatus: req.body.AsseStatus,
-    ObservationPoint: req.body.ObservationPoint,
-    Location: req.body.Location,
-    LProvince: req.body.LProvince,
-    LAmphur: req.body.LAmphur,
-    LDistrict: req.body.LDistrict,
-    LZipCode: req.body.LZipCode,
-    ContactUo: req.body.ContactUo,
-    ContactSo: req.body.ContactSo,
-    ContactUt: req.body.ContactUt,
-    ContactSt: req.body.ContactSt,
-    ContactU: req.body.ContactU,
-    ContactS: req.body.ContactS,
-    Blind: req.body.Blind,
-    Neareducation: req.body.Neareducation,
-    Cenmarket: req.body.Cenmarket,
-    Market: req.body.Market,
-    River: req.body.River,
-    Mainroad: req.body.Mainroad,
-    Insoi: req.body.Insoi,
-    Letc: req.body.Letc,
-    airconditioner: req.body.airconditioner,
-    afan: req.body.afan,
-    AirPurifier: req.body.AirPurifier,
-    Waterheater: req.body.Waterheater,
-    WIFI: req.body.WIFI,
-    TV: req.body.TV,
-    refrigerator: req.body.refrigerator,
-    microwave: req.body.microwave,
-    gasstove: req.body.gasstove,
-    wardrobe: req.body.wardrobe,
-    TCset: req.body.TCset,
-    sofa: req.body.sofa,
-    bed: req.body.bed,
-    shelves: req.body.shelves,
-    CCTV: req.body.CCTV,
-    Securityguard: req.body.Securityguard,
-    pool: req.body.pool,
-    Fitness: req.body.Fitness,
-    Publicarea: req.body.Publicarea,
-    ShuttleBus: req.body.ShuttleBus,
-    WVmachine: req.body.WVmachine,
-    CWmachine: req.body.CWmachine,
-    Elevator: req.body.Elevator,
-    Lobby: req.body.Lobby,
-    ATM: req.body.ATM,
-    BeautySalon: req.body.BeautySalon,
-    Balcony: req.body.Balcony,
-    EventR: req.body.EventR,
-    MeetingR: req.body.MeetingR,
-    LivingR: req.body.LivingR,
-    Hairsalon: req.body.Hairsalon,
-    Laundry: req.body.Laundry,
-    Store: req.body.Store,
-    Supermarket: req.body.Supermarket,
-    CStore: req.body.CStore,
-    MFee: req.body.MFee,
-    Kitchen: req.body.Kitchen,
-    LandAge: req.body.LandAge,
-    Owner: decoded.ID_User,
-  }
-  House.create(houseData)
-    .then(house => {
-      let token = jwt.sign(house.dataValues, process.env.SECRET_KEY, {
-        expiresIn: 1440
-      })
-      res.json({
-        token: token
-      })
-      return console.log("บันทึกสำเร็จ.");
-    })
-    .catch(err => {
-      res.send('error: ' + err)
-    })
 
-
-})
 
 // delete land
-house.put('/house/Delete', (req, res, next) => {
-  House.destroy({
-      where: {
-        ID_Property: req.body.ID_Property
-      }
-    })
-    .then(() => {
-      res.send('อสังหาถูกลบแล้ว')
-      return console.log("สำเร็จ.");
-    })
-    .catch(err => {
-      res.send('error: ' + err)
-    })
-})
-
-// delete land
-house.put('/house/DeleteImage', (req, res, next) => {
-  img.destroy({
-      where: {
-        ID_Photo: req.body.ID_Photo
-      }
-    })
-    .then(() => {
-      res.send('อสังหาถูกลบแล้ว')
-      return console.log("สำเร็จ.");
-    })
-    .catch(err => {
-      res.send('error: ' + err)
-    })
-})
-// Update land
-house.put('/EditHouse', (req, res, next) => {
-  if (!req.body.ID_Property) {
-    res.status(400)
-    res.json({
-      error: '555'
-    })
-  } else {
-    House.update({
-        PropertyType: req.body.PropertyType,
-        AnnounceTH: req.body.AnnounceTH,
-        CodeDeed: req.body.CodeDeed,
-        SellPrice: req.body.SellPrice,
-        Costestimate: req.body.Costestimate,
-        CostestimateB: req.body.CostestimateB,
-        MarketPrice: req.body.MarketPrice,
-        BathRoom: req.body.BathRoom,
-        BedRoom: req.body.BedRoom,
-        CarPark: req.body.CarPark,
-        HouseArea: req.body.HouseArea,
-        Floor: req.body.Floor,
-        LandR: req.body.LandR,
-        LandG: req.body.LandG,
-        LandWA: req.body.LandWA,
-        LandU: req.body.LandU,
-        HomeCondition: req.body.HomeCondition,
-        BuildingAge: req.body.BuildingAge,
-        BuildFD: req.body.BuildFD,
-        BuildFM: req.body.BuildFM,
-        BuildFY: req.body.BuildFY,
-        Directions: req.body.Directions,
-        RoadType: req.body.RoadType,
-        RoadWide: req.body.RoadWide,
-        GroundLevel: req.body.GroundLevel,
-        GroundValue: req.body.GroundValue,
-        MoreDetails: req.body.MoreDetails,
-        Latitude: req.body.Latitude,
-        Longitude: req.body.Longitude,
-        AsseStatus: req.body.AsseStatus,
-        ObservationPoint: req.body.ObservationPoint,
-        Location: req.body.Location,
-        LProvince: req.body.LProvince,
-        LAmphur: req.body.LAmphur,
-        LDistrict: req.body.LDistrict,
-        LZipCode: req.body.LZipCode,
-        ContactUo: req.body.ContactUo,
-        ContactSo: req.body.ContactSo,
-        ContactUt: req.body.ContactUt,
-        ContactSt: req.body.ContactSt,
-        ContactU: req.body.ContactU,
-        ContactS: req.body.ContactS,
-        Blind: req.body.Blind,
-        Neareducation: req.body.Neareducation,
-        Cenmarket: req.body.Cenmarket,
-        Market: req.body.Market,
-        River: req.body.River,
-        Mainroad: req.body.Mainroad,
-        Insoi: req.body.Insoi,
-        Letc: req.body.Letc,
-        airconditioner: req.body.airconditioner,
-        afan: req.body.afan,
-        AirPurifier: req.body.AirPurifier,
-        Waterheater: req.body.Waterheater,
-        WIFI: req.body.WIFI,
-        TV: req.body.TV,
-        refrigerator: req.body.refrigerator,
-        microwave: req.body.microwave,
-        gasstove: req.body.gasstove,
-        wardrobe: req.body.wardrobe,
-        TCset: req.body.TCset,
-        sofa: req.body.sofa,
-        bed: req.body.bed,
-        shelves: req.body.shelves,
-        CCTV: req.body.CCTV,
-        Securityguard: req.body.Securityguard,
-        pool: req.body.pool,
-        Fitness: req.body.Fitness,
-        Publicarea: req.body.Publicarea,
-        ShuttleBus: req.body.ShuttleBus,
-        WVmachine: req.body.WVmachine,
-        CWmachine: req.body.CWmachine,
-        Elevator: req.body.Elevator,
-        Lobby: req.body.Lobby,
-        ATM: req.body.ATM,
-        BeautySalon: req.body.BeautySalon,
-        Balcony: req.body.Balcony,
-        EventR: req.body.EventR,
-        MeetingR: req.body.MeetingR,
-        LivingR: req.body.LivingR,
-        Hairsalon: req.body.Hairsalon,
-        Laundry: req.body.Laundry,
-        Store: req.body.Store,
-        Supermarket: req.body.Supermarket,
-        CStore: req.body.CStore,
-        MFee: req.body.MFee,
-        Kitchen: req.body.Kitchen,
-        LandAge: req.body.LandAge,
-      }, {
-        where: {
-          ID_Property: req.body.ID_Property
-        }
-      })
-      .then(() => {
-        res.send('Task Updated!')
-        return console.log("สำเร็จ.");
-      })
-      .error(err => handleError(err))
-  }
-})
 
 // Update land
-house.put('/UpdateStatus', (req, res, next) => {
-  if (!req.body.ID_Property) {
-    res.status(400)
-    res.json({
-      error: '555'
-    })
-  } else {
-    House.update({
-        PPStatus: req.body.PPStatus
 
-      }, {
-        where: {
-          ID_Property: req.body.ID_Property
-        }
-      })
-      .then(() => {
-        res.send('Task Updated!')
-        return console.log("สำเร็จ.");
-      })
-      .error(err => handleError(err))
-  }
-})
+
+
 
 module.exports = house
