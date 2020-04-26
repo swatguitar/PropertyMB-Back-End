@@ -1,5 +1,4 @@
 var express = require('express')
-const path = require('path')
 var house = express.Router()
 const cors = require('cors')
 var multer = require('multer')

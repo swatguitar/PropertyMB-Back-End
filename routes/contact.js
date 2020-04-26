@@ -76,6 +76,26 @@ contact.get('/contact', (req, res) => {
     })
 })
 
+//************* get contact to Random ID *************
+contact.post('/contactDuplicate', (req, res) => {
+  Contact.findAll({
+    where: {
+      ID_Contact:req.body.ContactU
+    }
+  })
+    .then(contact => {
+      if (contact) {
+        res.json(contact)
+        
+      } else {
+        res.send('contact does not exist')
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+
 // Update land
 contact.put('/EditContact', (req, res, next) => {
   if (!req.body.ContactName) {
