@@ -324,7 +324,7 @@ land.put('/landUpdate', (req, res) => {
     })
 })
 
-
+//************* Inseart data land// *************
 land.post('/addland', (req, res) => {
   var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
 
@@ -380,11 +380,11 @@ land.post('/addland', (req, res) => {
   }
   Land.create(landData)
     .then(land => {
-      let token = jwt.sign(land.dataValues, process.env.SECRET_KEY, {
-        expiresIn: 1440
-      })
-      res.json({ token: token })
-      return console.log("บันทึกสำเร็จ.");
+      if(!land){
+        res.json("ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีครั้ง")
+      }else{
+        res.json("บันทึกสำเร็จ กดปุ่ม 'ถัดไป'") 
+      }
     })
     .catch(err => {
       res.send('error: ' + err)
@@ -399,7 +399,7 @@ land.put('/EditLand', (req, res, next) => {
   if (!req.body.ID_Lands) {
     res.status(400)
     res.json({
-      error: 'Bad Data'
+      error: 'ไม่พบอสังหาฯ'
     })
   } else {
     Land.update(
@@ -454,8 +454,7 @@ land.put('/EditLand', (req, res, next) => {
       { where: { ID_Lands: req.body.ID_Lands } }
     )
       .then(() => {
-        res.send('Task Updated!')
-        return console.log("สำเร็จ.");
+        res.json('อัพเดทข้อมูล สำเร็จ')
       })
       .error(err => handleError(err))
   }

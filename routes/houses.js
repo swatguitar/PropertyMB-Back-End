@@ -547,6 +547,7 @@ house.put('/EditHouse', (req, res, next) => {
   }
 })
 
+
 house.post('/uploadG', function (req, res, next) {
   uploadG(req, res, function (err) {
     if (err) {
@@ -675,12 +676,7 @@ house.get('/imgProperty', (req, res) => {
 
 
 
-// Addland
 
-
-// delete land
-
-// Update land
 
 
 
