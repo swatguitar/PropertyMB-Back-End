@@ -17,9 +17,13 @@ location.get('/Province', (req, res, next) => {
         })
 })
 
-location.get('/Amphur', (req, res, next) => {
+location.post('/Amphur', (req, res, next) => {
 
-    Amphur.findAll()
+    Amphur.findAll({
+        where: {
+            PROVINCE_ID: req.body.PROVINCE_ID
+        }
+      })
         .then(amphur => {
             res.json(amphur)
         })
@@ -28,9 +32,14 @@ location.get('/Amphur', (req, res, next) => {
         })
 })
 
-location.get('/District', (req, res, next) => {
+location.post('/District', (req, res, next) => {
 
-    District.findAll()
+    District.findAll({
+        where: {
+            AMPHUR_ID: req.body.AMPHUR_ID,
+            PROVINCE_ID: req.body.PROVINCE_ID
+        }
+      })
         .then(district => {
             res.json(district)
         })
@@ -39,9 +48,15 @@ location.get('/District', (req, res, next) => {
         })
 })
 
-location.get('/Zipcode', (req, res, next) => {
+location.post('/Zipcode', (req, res, next) => {
 
-    Zipcode.findAll()
+    Zipcode.findAll({
+        where: {
+            AMPHUR_ID: req.body.AMPHUR_ID,
+            PROVINCE_ID: req.body.PROVINCE_ID,
+            DISTRICT_ID: req.body.DISTRICT_ID
+        }
+      })
         .then(zipcode => {
             res.json(zipcode)
         })

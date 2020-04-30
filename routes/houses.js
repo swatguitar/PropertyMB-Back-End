@@ -7,7 +7,6 @@ var multerS3 = require('multer-s3')
 const Group = require('../models/Group')
 const jwt = require('jsonwebtoken')
 const db = require('../database/db.js')
-var fs = require('fs')
 const {
   Op
 } = require("sequelize");
@@ -617,41 +616,6 @@ house.post('/uploadimageLand', function (req, res, next) {
 
 })
 
-house.post('/uploadprofile', function (req, res, next) {
-  upload(req, res, function (err) {
-    if (err) {
-      res.json({
-        error: err
-      });
-    }
-    //do all database record saving activity
-
-    const ID = {
-      ID_User: req.body.ID_User
-    }
-    const imgData = {
-      ProfileImg: null
-    }
-    if (req.file) {
-      imgData.ProfileImg = req.file.locaation
-      User.update(imgData, {
-          where: {
-            ID_User: ID.ID_User
-          }
-        })
-        .then(house => {
-          res.json({
-            house
-          })
-        })
-        .catch(err => {
-          res.send('error: ' + err)
-        })
-    }
-  });
-
-
-});
 
 
 

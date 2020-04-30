@@ -3,12 +3,17 @@ const users = express.Router()
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
-const crypto = require('crypto')
 const User = require('../models/User')
 const nodemailer = require('nodemailer');
 var randomize = require('randomatic');
+var multer = require('multer')
+var aws = require('aws-sdk')
+var multerS3 = require('multer-s3')
+
+process.env.SECRET_KEY = 'secret'
 users.use(cors())
 
+//************* Config Gmail to send message to repassword *************
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -16,8 +21,49 @@ const transporter = nodemailer.createTransport({
     pass: 'tar15234.' // your email password
   }
 });
-process.env.SECRET_KEY = 'secret'
 
+
+//************* FileFilter to filter image before upload *************
+const FileFilter = (req, file, cd) => {
+
+  if (file.mimettype === 'image/jpeg' || file.mimettype === 'image/png') {
+    cd(null, true);
+  } else {
+    cd(null, false);
+  }
+}
+//************* Config Amazon s3 bucket *************
+aws.config.update({
+  secretAccessKey: 'ske3uOIYveU9sN4WjWc0KKfEfmAdMc0uMAkAY2f7',
+  accessKeyId: 'AKIAJMSJLXE6OBJ5OFJA',
+  region: 'us-east-2'
+})
+var s3 = new aws.S3()
+var uploadS3 = multer({
+  limits: {
+    fieldSize: 1024 * 1024 * 5 // no larger than 5mb, you can change as needed.
+  },
+  FileFilter: FileFilter,
+  storage: multerS3({
+    s3: s3,
+    bucket: 'backendppmb',
+    metadata: function (req, file, cb) {
+      cb(null, {
+        fieldName: file.fieldname
+      });
+    },
+    acl: 'public-read',
+    key: function (req, file, cb) {
+      cb(null, 'img_' + Date.now() + '.jpg')
+    }
+  })
+})
+
+//** config file **
+const uploadImg = uploadS3.single('file');
+
+
+//************* register *************
 users.post('/register', (req, res) => {
   const today = new Date()
   const userData = {
@@ -36,12 +82,11 @@ users.post('/register', (req, res) => {
     Password: req.body.Password,
     Created: today
   }
-
   User.findOne({
-    where: {
-      Email: req.body.Email
-    }
-  })
+      where: {
+        Email: req.body.Email
+      }
+    })
     //TODO bcrypt
     .then(user => {
       if (!user) {
@@ -52,46 +97,55 @@ users.post('/register', (req, res) => {
             let token = jwt.sign(user.dataValues, process.env.SECRET_KEY, {
               expiresIn: 14400
             })
-            res.json({ token: token })
+            res.json({
+              token: token
+            })
           })
           .catch(err => {
             res.send('error: ' + err)
           })
       } else {
-        res.json({ error: 'อีเมลนี้ถูกใช้ไปแล้ว' })
+        res.json({
+          error: 'อีเมลนี้ถูกใช้ไปแล้ว'
+        })
       }
     })
     .catch(err => {
       res.send('error: ' + err)
     })
 })
-
+//************* Repassword  *************
 users.put('/ResetPassM', (req, res) => {
   var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
   const userData = {
     Password: req.body.Password
   }
   User.findOne({
-    where: {
-      ID_User: decoded.ID_User
-    }
-  })
+      where: {
+        ID_User: decoded.ID_User
+      }
+    })
     //TODO bcrypt
     .then(user => {
       if (bcrypt.compareSync(req.body.OldPassword, user.Password)) {
         const hash = bcrypt.hashSync(userData.Password, 10)
         userData.Password = hash
         User.update(
-          userData,
-          { where: { ID_User: decoded.ID_User } })
+            userData, {
+              where: {
+                ID_User: decoded.ID_User
+              }
+            })
           .then(user => {
-            res.json('บันทึกสำเร็จ')
+            res.json('รีเซ็ทรหัสผ่าน สำเร็จ')
           })
           .catch(err => {
             res.send('error: ' + err)
           })
       } else {
-        res.json({ error: 'รหัสผ่านเดิม ไม่ถูกต้อง' })
+        res.json({
+          error: 'รหัสผ่านเดิม ไม่ถูกต้อง'
+        })
       }
     })
     .catch(err => {
@@ -103,17 +157,20 @@ users.put('/ResetPass', (req, res) => {
     Password: req.body.Password
   }
   User.findOne({
-    where: {
-      Email: req.body.Email,
-    }
-  })
+      where: {
+        Email: req.body.Email,
+      }
+    })
     //TODO bcrypt
     .then(user => {
       if (user) {
         const hash = bcrypt.hashSync(userData.Password, 10)
         userData.Password = hash
-        User.update(userData,
-          { where: { Email: req.body.Email } })
+        User.update(userData, {
+            where: {
+              Email: req.body.Email
+            }
+          })
           .then(user => {
             res.json('กรุณารีเซ็ทรหัสผ่านของท่าน')
           })
@@ -121,7 +178,9 @@ users.put('/ResetPass', (req, res) => {
             res.send('error: ' + err)
           })
       } else {
-        res.json({ error: 'ไม่พบผู้ใช้นี้' })
+        res.json({
+          error: 'ไม่พบผู้ใช้นี้'
+        })
       }
     })
     .catch(err => {
@@ -129,25 +188,30 @@ users.put('/ResetPass', (req, res) => {
     })
 })
 
+//************* Send email *************
 users.post('/sendEmail', (req, res) => {
-
   User.findOne({
-    where: {
-      Email: req.body.Email,
-    }
-  })
+      where: {
+        Email: req.body.Email,
+      }
+    })
     //TODO bcrypt
     .then(user => {
       if (user) {
-        token = randomize('Aa0', 10);//creating the token to be sent to the forgot password form (react)
+        token = randomize('Aa0', 10); //creating the token to be sent to the forgot password form (react)
         const hash = bcrypt.hashSync(token, 10) //hashing the password to store in the db node.js
         User.update({
-          Token: hash,
-          //Phone: moment.utc().add(config.tokenExpiry, 'seconds'),
-        },
-          { where: { Email: user.Email } }).then(function (item) {
+            Token: hash,
+            //Phone: moment.utc().add(config.tokenExpiry, 'seconds'),
+          }, {
+            where: {
+              Email: user.Email
+            }
+          }).then(function (item) {
             if (!item) {
-              res.json({ error: 'Oops problem in creating new password record' })
+              res.json({
+                error: 'Oops problem in creating new password record'
+              })
             } else {
 
               let mailOptions = {
@@ -170,12 +234,12 @@ users.post('/sendEmail', (req, res) => {
                   '<p style="text-align: center">Copyright@PropertyManagement 2018 - 2019</p>'
               }
               transporter.sendMail(mailOptions, function (err, info) {
-                if (err){
+                if (err) {
                   console.log(err)
                   res.json('กรุณาลองใหม่อีกครั้ง')
-                }else{
+                } else {
                   res.json('กรุณาตรวจสอบอีเมลของท่าน เราได้รีเซ็ตรหัสไปยังอีเมลที่ท่านเคยลงทะเบียนไว้ ')
-                }  
+                }
               });
             }
           })
@@ -183,7 +247,9 @@ users.post('/sendEmail', (req, res) => {
             res.send('error: ' + err)
           })
       } else {
-        res.json({ error: 'ไม่พบอีเมล' })
+        res.json({
+          error: 'ไม่พบอีเมล'
+        })
       }
     })
     .catch(err => {
@@ -191,18 +257,23 @@ users.post('/sendEmail', (req, res) => {
     })
 })
 
+//************* compare token after repassword *************
 users.post('/compareToken', (req, res) => {
   User.findOne({
-    where: {
-      Email: req.body.Email,
-    }
-  })
-    //TODO bcrypt
+      where: {
+        Email: req.body.Email,
+      }
+    })
     .then(user => {
       if (user) {
         if (bcrypt.compareSync(req.body.Token, user.Token)) {
-          User.update({ Token: " " },
-            { where: { Email: req.body.Email } })
+          User.update({
+              Token: " "
+            }, {
+              where: {
+                Email: req.body.Email
+              }
+            })
             .then(user => {
               res.json('กรุณารีเซ็ทรหัสผ่านของท่าน')
             })
@@ -210,10 +281,14 @@ users.post('/compareToken', (req, res) => {
               res.send('error: ' + err)
             })
         } else {
-          res.json({ error: 'รหัสยืนยัน ไม่ถูกต้อง' })
+          res.json({
+            error: 'รหัสยืนยัน ไม่ถูกต้อง'
+          })
         }
       } else {
-        res.json({ error: 'ไม่พบผู้ใช้นี้' })
+        res.json({
+          error: 'ไม่พบผู้ใช้นี้'
+        })
       }
     })
     .catch(err => {
@@ -221,6 +296,7 @@ users.post('/compareToken', (req, res) => {
     })
 })
 
+//************* Update infomation profile *************
 users.put('/updateprofile', (req, res) => {
   var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
   const userData = {
@@ -234,16 +310,18 @@ users.put('/updateprofile', (req, res) => {
     Gender: req.body.Gender,
   }
   User.findOne({
-    where: {
-      ID_User: decoded.ID_User,
-    }
-  })
-    //TODO bcrypt
+      where: {
+        ID_User: decoded.ID_User,
+      }
+    })
     .then(user => {
       if (user) {
         User.update(
-          userData,
-          { where: { ID_User: decoded.ID_User } })
+            userData, {
+              where: {
+                ID_User: decoded.ID_User
+              }
+            })
           .then(user => {
             res.json('บันทึกสำเร็จ')
           })
@@ -251,7 +329,9 @@ users.put('/updateprofile', (req, res) => {
             res.send('error: ' + err)
           })
       } else {
-        res.json({ error: 'ไม่พบผู้ใช้นี้' })
+        res.json({
+          error: 'ไม่พบผู้ใช้นี้'
+        })
       }
     })
     .catch(err => {
@@ -259,30 +339,34 @@ users.put('/updateprofile', (req, res) => {
     })
 })
 
-users.put('/removeimg', (req, res) => {
+//************* Delete image profile *************
+users.put('/removeimg', (req, res, next) => {
   var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
   const userData = {
     ProfileImg: '',
   }
-  User.findOne({
-    where: {
-      ID_User: decoded.ID_User,
-    }
-  })
-    //TODO bcrypt
-    .then(user => {
-      if (user) {
-        User.update(
-          userData,
-          { where: { ID_User: decoded.ID_User } })
-          .then(user => {
-            res.json('ลบรูปสำเร็จ')
-          })
-          .catch(err => {
-            res.send('error: ' + err)
-          })
+  User.findAll({
+      where: {
+        ID_User: decoded.ID_User
+      }
+    }).then(Image => {
+      if (Image) {
+          User.update(
+              userData, {
+                where: {
+                  ID_User: decoded.ID_User
+                }
+              })
+            .then(user => {
+              res.json("ลบรูปภาพสำเร็จ")
+            })
+            .catch(err => {
+              res.send('error: ' + err)
+            })
       } else {
-        res.json({ error: 'ไม่พบอีเมลนี้ในระบบ' })
+        res.json({
+          error: "ไม่พบรูปภาพ"
+        })
       }
     })
     .catch(err => {
@@ -290,18 +374,20 @@ users.put('/removeimg', (req, res) => {
     })
 })
 
-
+//************* Find Email *************
 users.post('/GetEmail', (req, res) => {
   User.findOne({
-    where: {
-      Email: req.body.Email
-    }
-  })
+      where: {
+        Email: req.body.Email
+      }
+    })
     .then(user => {
       if (user) {
         res.json(user)
       } else {
-        res.json({ error: 'ไม่พบอีเมลนี้ในระบบ' })
+        res.json({
+          error: 'ไม่พบอีเมลนี้ในระบบ'
+        })
       }
     })
     .catch(err => {
@@ -309,20 +395,21 @@ users.post('/GetEmail', (req, res) => {
     })
 })
 
-
-
+//************* Login *************
 users.post('/login', (req, res) => {
   User.findOne({
-    where: {
-      Email: req.body.Email
-    }
-  })
+      where: {
+        Email: req.body.Email
+      }
+    })
     .then(user => {
       if (bcrypt.compareSync(req.body.Password, user.Password)) {
         let token = jwt.sign(user.dataValues, process.env.SECRET_KEY, {
           expiresIn: "365d"
         })
-        res.json({ token: token })
+        res.json({
+          token: token
+        })
       } else {
         res.send('User does not exist')
       }
@@ -332,14 +419,14 @@ users.post('/login', (req, res) => {
     })
 })
 
+//************* get profile info *************
 users.get('/profile', (req, res) => {
   var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
-
   User.findOne({
-    where: {
-      ID_User: decoded.ID_User
-    }
-  })
+      where: {
+        ID_User: decoded.ID_User
+      }
+    })
     .then(user => {
       if (user) {
         res.json(user)
@@ -350,6 +437,40 @@ users.get('/profile', (req, res) => {
     .catch(err => {
       res.send('error: ' + err)
     })
-})
 
-module.exports = users 
+})
+//************* update image profile *************
+users.post('/uploadprofile', function (req, res, next) {
+  uploadImg(req, res, function (err) {
+    if (err) {
+      res.json({
+        error: err
+      });
+    }
+    const ID = {
+      ID_User: req.body.ID_User
+    }
+    const imgData = {
+      ProfileImg: null
+    }
+    if (req.file) {
+      imgData.ProfileImg = req.file.locaation
+      User.update(imgData, {
+          where: {
+            ID_User: ID.ID_User
+          }
+        })
+        .then(result => {
+          if(result){
+            res.json(result)
+          }
+        })
+        .catch(err => {
+          res.send('error: ' + err)
+        })
+    }
+  });
+});
+
+
+module.exports = users

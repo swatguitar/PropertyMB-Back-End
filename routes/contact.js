@@ -98,10 +98,11 @@ contact.post('/contactDuplicate', (req, res) => {
 
 // Update land
 contact.put('/EditContact', (req, res, next) => {
-  if (!req.body.ContactName) {
+  console.log(req.body)
+  if (req.body.ContactName == '')  {
     res.status(400)
     res.json({
-      error: 'Bad Data'
+      error: 'กรุณากรอกชื่อ'
     })
   } else {
     Contact.update(
@@ -113,7 +114,7 @@ contact.put('/EditContact', (req, res, next) => {
        },
       { where: { ID_Contact: req.body.ID_Contact } }
     ).then(() => {
-      res.send('บันทึกสำเร็จ')
+      res.json('บันทึกสำเร็จ')
     })
     .error(err => handleError(err))
   }

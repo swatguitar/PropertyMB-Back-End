@@ -191,7 +191,7 @@ land.put('/land/Delete', (req, res, next) => {
       ID_Lands: req.body.ID_Lands
     }
   })
-  img.destroy({
+  imgL.destroy({
       where: {
         ID_land: req.body.ID_Lands
       }
@@ -393,8 +393,7 @@ land.post('/addland', (req, res) => {
 
 })
 
-
-// Update land
+//************* Update data land// *************
 land.put('/EditLand', (req, res, next) => {
   if (!req.body.ID_Lands) {
     res.status(400)
