@@ -7,48 +7,229 @@ const GroupAn = require('../models/GroupFolder')
 const GroupM = require('../models/Groupmembers')
 const TypeAn = require('../models/PropertyInGroups')
 const User = require('../models/User')
-const multer = require('multer');
+const db = require('../database/db.js')
+const {
+  Op
+} = require("sequelize");
+var multer = require('multer')
+var aws = require('aws-sdk')
+var multerS3 = require('multer-s3')
+
 group.use(cors())
 
 
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, __dirname,'../uploads/images')
-  },
-  filename: function (req, file, cb) {
-    cb(null, 'group_' + Date.now() + '.jpg')
-  }
-})
+//************* FileFilter to filter image before upload *************
 const FileFilter = (req, file, cd) => {
-  //reject a file
+
   if (file.mimettype === 'image/jpeg' || file.mimettype === 'image/png') {
     cd(null, true);
   } else {
     cd(null, false);
   }
-
-
 }
-const upload = multer({
-  storage: storage,
+//************* Config Amazon s3 bucket *************
+aws.config.update({
+  secretAccessKey: 'ske3uOIYveU9sN4WjWc0KKfEfmAdMc0uMAkAY2f7',
+  accessKeyId: 'AKIAJMSJLXE6OBJ5OFJA',
+  region: 'us-east-2'
+})
+var s3 = new aws.S3()
+var uploadS3 = multer({
   limits: {
-    fieldSize: 1024 * 1024 * 5
+    fieldSize: 1024 * 1024 * 5 // no larger than 5mb, you can change as needed.
   },
-  FileFilter: FileFilter
-}).single('file');
+  FileFilter: FileFilter,
+  storage: multerS3({
+    s3: s3,
+    bucket: 'backendppmb',
+    metadata: function (req, file, cb) {
+      cb(null, {
+        fieldName: file.fieldname
+      });
+    },
+    acl: 'public-read',
+    key: function (req, file, cb) {
+      cb(null, 'group_' + Date.now() + '.jpg')
+    }
+  })
+})
 
+//** config file **
+const uploadImg = uploadS3.single('file');
+
+//************* get group detail member *************
+group.get('/group/groupDetailMember', (req, res) => {
+  var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+  db.sequelize.query(
+    "SELECT * FROM `Groups` AS `g` INNER JOIN `Groupmembers` AS `gm` ON `g`.`ID_Group` = `gm`.`ID_Group`  WHERE `gm`.`ID_User`= " + decoded.ID_User , {
+        type: Op.SELECT
+      }
+    ).then(groupDetail => {
+      if (groupDetail) {
+        res.json(groupDetail[0])
+        //console.log(condition)
+      } else {
+        res.json({
+          error: "ไม่พบข้อมูล"
+        })
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+
+//************* get group detail member *************
+group.post('/group/ListDetailMember', (req, res) => {
+ 
+  db.sequelize.query(
+    "SELECT * FROM Groupmembers AS m INNER JOIN Users AS u ON `m`.ID_User = `u`.ID_User  WHERE `m`.`ID_Group`= "+req.body.ID_Group  , {
+        type: Op.SELECT
+      }
+    ).then(ListDetail => {
+      if (ListDetail) {
+        res.json(ListDetail[0])
+      } else {
+        res.json({
+          error: "ไม่พบข้อมูล"
+        })
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+
+//************* get property in folder *************
+group.post('/group/folder/Listproperty', (req, res) => {
+ 
+  db.sequelize.query(
+    "SELECT * FROM PropertyInGroups AS pig INNER JOIN propertys AS p ON `pig`.ID_Property = `p`.ID_Property INNER JOIN Users AS u ON `p`.owner = `u`.ID_user  WHERE `pig`.`ID_Folder`= "+req.body.ID_Folder  , {
+        type: Op.SELECT
+      }
+    ).then(item => {
+      if (item) {
+        res.json(item[0])
+      } else {
+        res.json({
+          error: "ไม่พบข้อมูล"
+        })
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+
+//************* get Land in folder *************
+group.post('/group/folder/ListLand', (req, res) => {
+ 
+  db.sequelize.query(
+    "SELECT * FROM PropertyInGroups AS pig INNER JOIN lands AS l ON `pig`.ID_Property = `l`.ID_Lands INNER JOIN Users AS u ON `l`.owner = `u`.ID_user WHERE `pig`.`ID_Folder`= "+req.body.ID_Folder  , {
+        type: Op.SELECT
+      }
+    ).then(item => {
+      if (item) {
+        res.json(item[0])
+      } else {
+        res.json({
+          error: "ไม่พบข้อมูล"
+        })
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+//************* get group by owner id *************
+group.get('/group', (req, res) => {
+  var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+  Group.findAll({
+      where: {
+        Owner: decoded.ID_User
+      }
+    })
+    .then(group => {
+      if (group) {
+        res.json(group)
+      } else {
+        res.send('ไม่พบกลุ่ม')
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+
+//************* get folder of group  *************
+group.put('/group/folder', (req, res) => {
+
+  GroupAn.findAll({
+      where: {
+        ID_Group: req.body.ID_Group
+      }
+    })
+    .then(group => {
+      if (group) {
+        res.json(group)
+      } else {
+        res.send('ไม่พบแฟ้ม')
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+
+//************* get all group *************
+group.get('/groupAll', (req, res) => {
+
+  Group.findAll()
+    .then(group => {
+      if (group) {
+        res.json(group)
+      } else {
+        res.send('group does not exist')
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+
+//************* get group that you are member  *************
+group.get('/group/onmember', (req, res) => {
+  var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+
+  GroupM.findAll({
+      where: {
+        ID_User: decoded.ID_User
+      }
+    })
+    .then(group => {
+      if (group) {
+        res.json(group)
+      } else {
+        res.send('group does not exist')
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+
+//************* get group that you are member  *************
 group.post('/uploadimagegroup', function (req, res, next) {
-  upload(req, res, function (err) {
+  uploadImg(req, res, function (err) {
     if (err) {
       res.json({
         error: err
       });
     }
-    //do all database record saving activity
     if (req.file) {
       Group.update({
-          Img: req.file.filename
+          Img: req.file.location
         }, {
           where: {
             ID_Group: req.body.ID_Group
@@ -61,21 +242,15 @@ group.post('/uploadimagegroup', function (req, res, next) {
           res.json({
             token: token
           })
-          client.upload(['uploads/images/**'], '/public_html/images', {
-            baseDir: 'uploads/images',
-            overwrite: 'older'
-          }, function (result) {
-            console.log(result);
-          });
         })
         .catch(err => {
           res.send('error: ' + err)
         })
     }
   });
-
-
 })
+
+//************* create group *************
 group.post('/addgroup', (req, res) => {
   var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
   const groupData = {
@@ -94,11 +269,9 @@ group.post('/addgroup', (req, res) => {
     .catch(err => {
       res.send('error: ' + err)
     })
-
-
 })
 
-
+//************* create folder *************
 group.post('/createfolder', (req, res) => {
   const groupData = {
     NameF: req.body.NameF,
@@ -120,13 +293,33 @@ group.post('/createfolder', (req, res) => {
 
 })
 
+//************* Get group by id group *************
+group.post('/group/groupbById', (req, res) => {
+  Group.findAll({
+    where: {
+      ID_Group: req.body.ID_Group,
+    }
+  })
+  .then(group => {
+    if (group) {
+      res.json(group)
+    } else {
+      res.send('group does not exist')
+    }
+  })
+  .catch(err => {
+    res.send('error: ' + err)
+  })
+
+
+})
+
 //************* add property into group *************
 group.post('/addAnnouce', (req, res) => {
   const groupData = {
     ID_Property: req.body.ID_Property,
     ID_Folder: req.body.ID_Folder
   }
-
   TypeAn.findOne({
       where: {
         ID_Folder: req.body.ID_Folder,
@@ -140,7 +333,7 @@ group.post('/addAnnouce', (req, res) => {
             let token = jwt.sign(group.dataValues, process.env.SECRET_KEY, {
               expiresIn: 1440
             })
-            res.json( "เพิ่มอสังหาฯลงกลุ่มสำเร็จ")
+            res.json("เพิ่มอสังหาฯลงกลุ่มสำเร็จ")
           })
           .catch(err => {
             res.send('error: ' + err)
@@ -154,31 +347,10 @@ group.post('/addAnnouce', (req, res) => {
     .catch(err => {
       res.send('error: ' + err)
     })
-
-
-
 })
 
-group.put('/group/folder', (req, res) => {
-
-  GroupAn.findAll({
-      where: {
-        ID_Group: req.body.ID_Group
-      }
-    })
-    .then(group => {
-      if (group) {
-        res.json(group)
-      } else {
-        res.send('folder does not exist')
-      }
-    })
-    .catch(err => {
-      res.send('error: ' + err)
-    })
-})
+//************* get group folder *************
 group.put('/group/folder/ID', (req, res) => {
-
   GroupAn.findAll({
       where: {
         ID_Folder: req.body.ID_Folder
@@ -195,6 +367,8 @@ group.put('/group/folder/ID', (req, res) => {
       res.send('error: ' + err)
     })
 })
+
+//************* get group member *************
 group.put('/group/member', (req, res) => {
 
   GroupM.findAll({
@@ -213,9 +387,14 @@ group.put('/group/member', (req, res) => {
       res.send('error: ' + err)
     })
 })
-group.get('/group/member/list', (req, res) => {
 
-  User.findAll()
+//************* get owner info *************
+group.post('/group/owner', (req, res) => {
+  User.findAll({
+    where: {
+      ID_User: req.body.ID_User
+    }
+  })
     .then(user => {
       res.json(user)
     })
@@ -223,12 +402,13 @@ group.get('/group/member/list', (req, res) => {
       res.send('error: ' + err)
     })
 })
+
+//************* add member to group *************
 group.post('/group/member/add', (req, res) => {
   var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
   var ID
   if (req.body.Email == decoded.Email) {
     res.json('คุณไม่สามารถเพิ่มตัวเองลงกลุ่มได้')
-
   } else {
     User.findAll({
         where: {
@@ -276,6 +456,8 @@ group.post('/group/member/add', (req, res) => {
       })
   }
 })
+
+//************* check user *************
 group.put('/group/member/chack', (req, res) => {
   var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
   var ID
@@ -302,6 +484,7 @@ group.put('/group/member/chack', (req, res) => {
 
 })
 
+
 group.put('/group/folder/list', (req, res) => {
 
   TypeAn.findAll({
@@ -320,8 +503,8 @@ group.put('/group/folder/list', (req, res) => {
       res.send('error: ' + err)
     })
 })
+//************* get peoperty of folder *************
 group.get('/group/folder/listAll', (req, res) => {
-
   TypeAn.findAll()
     .then(group => {
       if (group) {
@@ -335,62 +518,9 @@ group.get('/group/folder/listAll', (req, res) => {
     })
 })
 
-group.get('/group', (req, res) => {
-  var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
-
-  Group.findAll({
-      where: {
-        Owner: decoded.ID_User
-      }
-    })
-    .then(group => {
-      if (group) {
-        res.json(group)
-      } else {
-        res.send('group does not exist')
-      }
-    })
-    .catch(err => {
-      res.send('error: ' + err)
-    })
-})
-
-group.get('/groupAll', (req, res) => {
-
-  Group.findAll()
-    .then(group => {
-      if (group) {
-        res.json(group)
-      } else {
-        res.send('group does not exist')
-      }
-    })
-    .catch(err => {
-      res.send('error: ' + err)
-    })
-})
 
 
-group.get('/group/onmember', (req, res) => {
-  var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
-
-  GroupM.findAll({
-      where: {
-        ID_User: decoded.ID_User
-      }
-    })
-    .then(group => {
-      if (group) {
-        res.json(group)
-      } else {
-        res.send('group does not exist')
-      }
-    })
-    .catch(err => {
-      res.send('error: ' + err)
-    })
-})
-// delete land
+ //************* Delete folder  *************
 group.put('/group/folder/Delete', (req, res, next) => {
   GroupAn.destroy({
       where: {
@@ -398,13 +528,13 @@ group.put('/group/folder/Delete', (req, res, next) => {
       }
     })
     .then(() => {
-      res.send('แฟ้มถูกลบแล้ว')
-      return console.log("สำเร็จ.");
+      res.json('แฟ้มถูกลบแล้ว')
     })
     .catch(err => {
       res.send('error: ' + err)
     })
 })
+ //************* Delete group  *************
 group.put('/group/Delete', (req, res, next) => {
   Group.destroy({
       where: {
@@ -412,13 +542,14 @@ group.put('/group/Delete', (req, res, next) => {
       }
     })
     .then(() => {
-      res.send('กลุ่มถูกลบแล้ว')
-      return console.log("สำเร็จ.");
+      res.json('กลุ่มถูกลบแล้ว')
     })
     .catch(err => {
       res.send('error: ' + err)
     })
 })
+
+ //************* Delete member  *************
 group.put('/group/member/Delete', (req, res, next) => {
   GroupM.destroy({
       where: {
@@ -427,13 +558,14 @@ group.put('/group/member/Delete', (req, res, next) => {
       }
     })
     .then(() => {
-      res.send('สมาชิกถูกลบแล้ว')
-      return console.log("สำเร็จ.");
+      res.json('สมาชิกถูกลบแล้ว')
     })
     .catch(err => {
       res.send('error: ' + err)
     })
 })
+
+ //************* Delete item  *************
 group.put('/group/Annouce/Delete', (req, res, next) => {
   TypeAn.destroy({
       where: {
@@ -441,19 +573,19 @@ group.put('/group/Annouce/Delete', (req, res, next) => {
       }
     })
     .then(() => {
-      res.send('ลบอสังหาฯออกจจากกลุ่มแล้ว')
-      return console.log("สำเร็จ.");
+      res.json('ลบอสังหาฯออกจจากกลุ่มแล้ว')
     })
     .catch(err => {
       res.send('error: ' + err)
     })
 })
-// Update land
+
+ //************* Edit group name  *************
 group.put('/EditGroupName', (req, res, next) => {
   if (!req.body.ID_Group) {
     res.status(400)
     res.json({
-      error: 'Bad Data'
+      error: 'กรุณากรอกชื่อกลุ่ม'
     })
   } else {
     Group.update({
@@ -464,17 +596,18 @@ group.put('/EditGroupName', (req, res, next) => {
         }
       })
       .then(() => {
-        res.send('Task Updated!')
-        return console.log("สำเร็จ.");
+        res.json('แก้ไขสำเร็จ')
       })
       .error(err => handleError(err))
   }
 })
+
+ //************* Edit folder name  *************
 group.put('/EditFolderName', (req, res, next) => {
   if (!req.body.ID_Folder) {
     res.status(400)
     res.json({
-      error: 'Bad Data'
+      error: 'กรุณากรอกชื่อแฟ้ม'
     })
   } else {
     GroupAn.update({
@@ -485,8 +618,7 @@ group.put('/EditFolderName', (req, res, next) => {
         }
       })
       .then(() => {
-        res.send('Task Updated!')
-        return console.log("สำเร็จ.");
+        res.json('แก้ไขสำเร็จ')
       })
       .error(err => handleError(err))
   }

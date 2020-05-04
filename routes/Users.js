@@ -411,7 +411,7 @@ users.post('/login', (req, res) => {
           token: token
         })
       } else {
-        res.send('User does not exist')
+        res.send('อีเมลไม่ถูกต้อง')
       }
     })
     .catch(err => {
