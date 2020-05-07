@@ -302,7 +302,24 @@ land.post('/uploadImageL', function (req, res, next) {
     }
   });
 });
-
+//************* group data land *************
+land.put('/group/member/landDetail', (req, res) => {
+  Land.findAll({
+      where: {
+        ID_Lands: req.body.ID_Lands
+      }
+    })
+    .then(land => {
+      if (land) {
+        res.json(land)
+      } else {
+        res.send('land does not exist')
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
 //************* Update data land// *************
 land.put('/landUpdate', (req, res) => {
   var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)

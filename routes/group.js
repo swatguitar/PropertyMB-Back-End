@@ -395,6 +395,7 @@ group.post('/group/owner', (req, res) => {
       ID_User: req.body.ID_User
     }
   })
+  
     .then(user => {
       res.json(user)
     })
@@ -421,7 +422,7 @@ group.post('/group/member/add', (req, res) => {
         });
 
         if (chack.length == '') {
-          res.json('อีเมลนี้ไม่มีอยู่จริง')
+          res.json('ไม่พบผู้ใช้งาน')
         } else {
           GroupM.findAll({
               where: {
@@ -473,7 +474,7 @@ group.put('/group/member/chack', (req, res) => {
       });
 
       if (chack.length == '') {
-        res.json('อีเมลนี้ไม่มีอยู่จริง')
+        res.json('ไม่พบผู้ใช้งาน')
       } else {
         res.json(chack)
       }

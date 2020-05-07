@@ -329,6 +329,25 @@ house.put('/houseUpdate', (req, res) => {
     })
 })
 
+//************* group data house *************
+house.put('/group/member/houseDetail', (req, res) => {
+  House.findAll({
+      where: {
+        ID_Property: req.body.ID_Property
+      }
+    })
+    .then(house => {
+      if (house) {
+        res.json(house)
+      } else {
+        res.send('house does not exist')
+      }
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
+
 //************* Insert data house *************
 house.post('/addhouse', (req, res) => {
   var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
