@@ -16,6 +16,8 @@ users.use(cors())
 //************* Config Gmail to send message to repassword *************
 const transporter = nodemailer.createTransport({
   service: 'gmail',
+  port: 465, //25, 465, 587 depend on your 
+  secure: true, // use SSL
   auth: {
     user: 'propertymbinc@gmail.com', // your email
     pass: 'tar15234.' // your email password
