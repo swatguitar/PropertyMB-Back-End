@@ -1,54 +1,61 @@
 const express = require('express')
 const recommend = express.Router()
+const jwt = require('jsonwebtoken')
 const cors = require('cors')
-const path = require('path')
-const {spawn} = require('child_process')
-let {PythonShell} = require('python-shell')
-const nodemailer = require('nodemailer');
+const House = require('../models/House')
+const Land = require('../models/Land')
 recommend.use(cors())
 
 
-recommend.get('/recommend', (req, res) => {
+process.env.SECRET_KEY = 'secret'
 
-  const { spawn } = require('child_process');
-  const process = spawn('python', ['../TEST.py', 
-  req.query.firstname, 
-  req.query.lastname]);
+//************* get house by UserType *************
+recommend.put('/HouseRecommend', (req, res) => {
+    var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
 
-  process.stdout.on('data', function(data) {
-
-      console.log(data.toString());
-      res.write(data);
-      res.end('end');
-  });
+    House.findAll({
+            where: {
+                Owner: decoded.ID_User,
+                UserType: req.body.UserType
+            } //,offset: 5, limit: 12
+        })
+        .then(house => {
+            if (house) {
+                res.json(house)
+            } else {
+                res.json({
+                    error: "ไม่พบข้อมูล"
+                })
+            }
+        })
+        .catch(err => {
+            res.send('error: ' + err)
+        })
 })
 
-recommend.get('/name', callName); 
-  
-function callName(req, res) { 
-      
-    // Use child_process.spawn method from  
-    // child_process module and assign it 
-    // to variable spawn 
-    var spawn = require("child_process").spawn; 
-      
-    // Parameters passed in spawn - 
-    // 1. type_of_script 
-    // 2. list containing Path of the script 
-    //    and arguments for the script  
-      
-    // E.g : http://localhost:3000/name?firstname=Mike&lastname=Will 
-    // so, first name = Mike and last name = Will 
-    var process = spawn('python',["./TEST.py", 
-                            req.query.firstname, 
-                            req.query.lastname] ); 
-  
-    // Takes stdout data from script which executed 
-    // with arguments and send this data to res object 
-    process.stdout.on('data', function(data) { 
-        res.send(data.toString()); 
-    } ) 
-} 
+//************* get land by UserType *************
+recommend.put('/LandRecommend', (req, res) => {
+    var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+
+    Land.findAll({
+            where: {
+                Owner: decoded.ID_User,
+                UserType: req.body.UserType
+            } //,offset: 5, limit: 12
+        })
+        .then(land => {
+            if (land) {
+                res.json(land)
+            } else {
+                res.json({
+                    error: "ไม่พบข้อมูล"
+                })
+            }
+        })
+        .catch(err => {
+            res.send('error: ' + err)
+        })
+})
 
 
-module.exports = recommend 
+module.exports = recommend

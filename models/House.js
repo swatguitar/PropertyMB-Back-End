@@ -39,7 +39,7 @@ module.exports = db.sequelize.define(
       type: Sequelize.STRING
     },
     HouseArea: {
-      type: Sequelize.STRING
+      type: Sequelize.FLOAT
     },
     Floor: {
       type: Sequelize.STRING
