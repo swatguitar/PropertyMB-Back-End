@@ -15,12 +15,12 @@ users.use(cors())
 
 //************* Config Gmail to send message to repassword *************
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  port: 465, //25, 465, 587 depend on your 
-  //secure: true, // use SSL
+  host: 'smtp.hostinger.in.th',
+  port: 587, //25, 465, 587 depend on your 
+  secure: false, // use SSL
   auth: {
-    user: 'propertymbinc@gmail.com', // your email
-    pass: 'tar15234.' // your email password
+    user: 'propertymb@landvist.xyz', // your email
+    pass: 'tar15234' // your email password
   }
 });
 
@@ -217,7 +217,7 @@ users.post('/sendEmail', (req, res) => {
             } else {
 
               let mailOptions = {
-                from: '"<PropertyMB Team>" propertymbinc@gmail.com',
+                from: '"<PropertyMB Team>" propertymb@landvist.xyz',
                 to: user.Email,
                 subject: 'คำร้องขอรีเซ็ทรหัสผ่าน PropertyMB',
                 html: '<hr><h2 style="text-align: center">PropertyMB</h2><hr>' +
