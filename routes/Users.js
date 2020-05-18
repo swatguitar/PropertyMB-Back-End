@@ -221,7 +221,7 @@ users.post('/sendEmail', (req, res) => {
                 to: user.Email,
                 subject: 'คำร้องขอรีเซ็ทรหัสผ่าน PropertyMB',
                 html: '<hr><h2 style="text-align: center">PropertyMB</h2><hr>' +
-                  '<img src="http://www.landvist.xyz/images/Defult/logo2.png">' +
+                  '<img src="https://www.landvist.xyz/images/Defult/logo2.png">' +
                   '<h3><b>คำร้องขอรีเซ็ทรหัสผ่าน PropertyMB</b></h3>' +
                   '<p>เรียนท่านผู้ใช้งาน</p>' +
                   '<p>ท่านได้ยื่นคำร้องขอรีเซ็ทรหัสผ่านของท่าน และระบบได้ทำการรีเซ็ทรหัสผ่านของท่านแล้ว โปรดใช้รหัสผ่านชั่วคราวด้านล่าง ในการรีเซ็ทรหัสผ่าน</p>' +
