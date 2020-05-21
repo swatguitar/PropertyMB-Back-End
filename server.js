@@ -69,7 +69,7 @@ app.get('/recommendHouse', (req, res) => {
   const {
     spawn
   } = require('child_process');
-  const processPY = spawn('py', ['./Model_House_Connect_Database-Debug01.py',
+  const processPY = spawn('python', ['./Model_House_Connect_Database-Debug01.py',
     req.query.ID_Property = req.body.ID_Property,
   ]);
 
