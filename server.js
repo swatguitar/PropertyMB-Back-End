@@ -65,10 +65,11 @@ app.listen(port, function () {
 
 app.get('/recommendHouse', (req, res) => {
   //var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+  // 'py' is use in cmd python
   const {
     spawn
   } = require('child_process');
-  const processPY = spawn('python', ['./Model_House_Connect_Database-Debug01.py',
+  const processPY = spawn('py', ['./Model_House_Connect_Database-Debug01.py',
     req.query.ID_Property = req.body.ID_Property,
   ]);
 
@@ -76,7 +77,7 @@ app.get('/recommendHouse', (req, res) => {
 
     console.log(data.toString());
     res.json({
-      Result: 'Succress'
+      Result: data.toString()
     })
     res.end('end');
   });
@@ -87,7 +88,7 @@ app.get('/recommendLand', (req, res) => {
   const {
     spawn
   } = require('child_process');
-  const processPY = spawn('python', ['./Model_Land_Connect_Database-Debug01.py',
+  const processPY = spawn('py', ['./Model_Land_Connect_Database-Debug01.py',
     req.query.ID_Lands = req.body.ID_Lands,
   ]);
 
