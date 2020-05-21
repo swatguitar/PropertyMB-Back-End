@@ -1,4 +1,3 @@
-
 var express = require('express')
 var cors = require('cors')
 var path = require('path')
@@ -11,7 +10,9 @@ const serveIndex = require('serve-index');
 var port = process.env.PORT || 3001
 
 
-app.use('/ftp', express.static(__dirname +'/uploads/images'), serveIndex('uploads/images', {'icons': true}));
+app.use('/ftp', express.static(__dirname + '/uploads/images'), serveIndex('uploads/images', {
+  'icons': true
+}));
 
 const aws = require('aws-sdk');
 
@@ -20,10 +21,14 @@ app.use(express.static('./public'));
 app.engine('html', require('ejs').renderFile);
 
 
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({
+  extended: false
+}));
 app.use(bodyParser.json());
 app.use(cors());
-app.use(bodyParser.urlencoded({extended: false }));
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
 app.use(cookieParser());
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -50,43 +55,48 @@ app.use('/users', location)
 app.use('/users', recommend)
 
 
-app.listen(port, function() {
+app.listen(port, function () {
   console.log('Server is running on port: ' + port)
 })
 
 
+
+
+
 app.get('/recommendHouse', (req, res) => {
-  var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
-  const { spawn } = require('child_process');
-  const processPY = spawn('python', ['./Load_from_Database.py', 
-  req.query.ID_User = decoded.ID_User, 
-  req.query.lastname]);
+  //var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+  const {
+    spawn
+  } = require('child_process');
+  const processPY = spawn('python', ['./Model_House_Connect_Database-Debug01.py',
+    req.query.ID_Property = req.body.ID_Property,
+  ]);
 
-  processPY.stdout.on('data', function(data) {
+  processPY.stdout.on('data', function (data) {
 
-      console.log(data.toString());
-      res.json({
-        Result: 'Succress'
-      })
-      res.end('end');
+    console.log(data.toString());
+    res.json({
+      Result: 'Succress'
+    })
+    res.end('end');
   });
 })
 
 app.get('/recommendLand', (req, res) => {
-  var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
-  const { spawn } = require('child_process');
-  const processPY = spawn('python', ['./Load_from_Database.py', 
-  req.query.ID_User = decoded.ID_User, 
-  req.query.lastname]);
+  //var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+  const {
+    spawn
+  } = require('child_process');
+  const processPY = spawn('python', ['./Model_Land_Connect_Database-Debug01.py',
+    req.query.ID_Lands = req.body.ID_Lands,
+  ]);
 
-  processPY.stdout.on('data', function(data) {
+  processPY.stdout.on('data', function (data) {
 
-      console.log(data.toString());
-      res.json({
-        Result: 'Succress'
-      })
-      res.end('end');
+    console.log(data.toString());
+    res.json({
+      Result: 'Succress'
+    })
+    res.end('end');
   });
 })
-
-

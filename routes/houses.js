@@ -3,6 +3,8 @@ var house = express.Router()
 const cors = require('cors')
 var multer = require('multer')
 var aws = require('aws-sdk')
+const PDFDocument = require('pdfkit')
+request = require('request')
 var multerS3 = require('multer-s3')
 const Group = require('../models/Group')
 const jwt = require('jsonwebtoken')
@@ -219,7 +221,7 @@ house.put('/house/DeleteImage', (req, res, next) => {
         data = Image.map(row => {
           return row.File_Name
         });
-       if (data != null) {
+        if (data != null) {
           params = {
             Bucket: 'backendppmb',
             Key: data[0]
@@ -229,15 +231,15 @@ house.put('/house/DeleteImage', (req, res, next) => {
             else console.log(data); // deleted
           });
           img.destroy({
-            where: {
-              ID_Photo: req.body.ID_Photo
-            }
-          }).then(() => {
-            res.json('ลบรูปภาพเสำเร็จ')
-          })
-          .catch(err => {
-            res.json('error: ' + err)
-          })
+              where: {
+                ID_Photo: req.body.ID_Photo
+              }
+            }).then(() => {
+              res.json('ลบรูปภาพเสำเร็จ')
+            })
+            .catch(err => {
+              res.json('error: ' + err)
+            })
         }
       } else {
         res.json({
@@ -249,7 +251,7 @@ house.put('/house/DeleteImage', (req, res, next) => {
       res.send('error: ' + err)
     })
 
-    
+
 })
 
 //************* Update PP Status house *************
@@ -445,10 +447,10 @@ house.post('/addhouse', (req, res) => {
   }
   House.create(houseData)
     .then(house => {
-      if(!house){
+      if (!house) {
         res.json("ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีครั้ง")
-      }else{
-        res.json("บันทึกสำเร็จ กดปุ่ม 'ถัดไป'") 
+      } else {
+        res.json("บันทึกสำเร็จ กดปุ่ม 'ถัดไป'")
       }
     })
     .catch(err => {
@@ -581,6 +583,226 @@ house.get('/imgProperty', (req, res) => {
     })
 })
 
+house.post('/HousePDF', (req, res) => {
+  const doc = new PDFDocument({
+    size: 'A4'
+  })
+  var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+  let filename = req.body.filename
+  let uri = req.body.URL
+  let image = 'https://backendppmb.s3.us-east-2.amazonaws.com/img_1587565164509.jpg'
+  let Owner
+  let images = []
+  let count = 0
+  let filesLoaded = 0
+  img.findAll({
+    where: {
+      ID_property: req.body.ID_Property
+    }
+  }).then(result => {
+    images = result
+  });
+  House.findAll({
+      where: {
+        ID_Property: req.body.ID_Property
+      }
+    })
+    .then(house => {
+      res.setHeader(
+        'Content-Type', 'application/pdf',
+        'Access-Control-Allow-Origin', '*',
+        'Content-Disposition', 'attachment; filename="' + house[0].ID_Property + '"'
+      );
+      User.findAll({
+        where: {
+          ID_User: house[0].Owner
+        }
+      }).then(result => {
+        Owner = result
+      });
+      doc.pipe(res)
+      /* request(image, function (error, response, body) {
+        doc.image(body, 60, 465, {
+          width: 130,
+          height: 110
+        })
+        });*/
+      request({
+        url: uri,
+        encoding: null // Prevents Request from converting response to string
+      }, function (err, response, body) {
+        if (err) throw err;
+        // Using a TrueType font (.ttf)
+        //console.log(response)
+        doc.font('service/THSarabun-Bold.ttf', 23);
+        doc.image('service/Navbar.png', 260, 10, {
+          width: 90,
+          height: 90
+        });
+        doc.image('service/Capture.PNG', 230, 60, {
+          width: 160,
+          height: 70
+        });
+        doc.text(house[0].AnnounceTH, 50, 130, {
+          width: 600
+        }).font('service/THSarabun.ttf', 13);
+        doc.text(house[0].Location + ',' + house[0].LDistrict + ',' + house[0].LAmphur + ',' + house[0].LProvince + ' ประเทศไทย ' + house[0].LZipCode, 50, 150).font('service/THSarabun-Bold.ttf', 14);
+        doc.image('service/hr.png', 295, 165, {
+          width: 10,
+          height: 300
+        });
+        doc.text('รายละเอียด', 60, 360, {
+          width: 410
+        });
+        doc.text('ข้อมูลสถานที่', 335, 315, {
+          width: 410
+        });
+        doc.text('รูปภาพ', 60, 465, {
+          width: 410
+        });
+        doc.text('ข้อมูลการติดต่อ', 335, 240, {
+          width: 410
+        });
+        doc.text('ข้อมูลทั่วไป', 60, 180, {
+          width: 410
+        }).font('service/THSarabun.ttf', 13);
+        doc.text('ประเภทอสังหาฯ :', 60, 195, {
+          width: 410
+        });
+        doc.text('รหสัอสังหาฯ :', 60, 210, {
+          width: 410
+        });
+        doc.text('สภาพ :', 60, 225, {
+          width: 410
+        });
+        doc.text('ปีที่ก่อสร้าง :', 60, 240, {
+          width: 410
+        });
+        doc.text('ทิศด้านหน้า :', 60, 255, {
+          width: 410
+        });
+        doc.text('ราคาขาย :', 60, 285, {
+          width: 410
+        });
+        doc.text('ราคาประเมิน :', 60, 300, {
+          width: 410
+        });
+        doc.text('ราคาตลาด :', 60, 315, {
+          width: 410
+        });
+        doc.text('**วางเงินมัดจำ', 60, 330, {
+          width: 410
+        });
+        doc.text('ห้องน้ำ :', 60, 375, {
+          width: 410
+        });
+        doc.text('ห้องนอน :', 60, 390, {
+          width: 410
+        });
+        doc.text('ที่จอดรถ :', 60, 405, {
+          width: 410
+        });
+        doc.text('พื้นที่ใช้สอย :', 60, 420, {
+          width: 410
+        });
+        doc.text('จำนวนชั้น/ชั้นที่อาศัยอยู่ :', 60, 435, {
+          width: 410
+        });
+        // right
+        doc.text('สถานะการซื้อขาย :', 335, 195, {
+          width: 410
+        });
+        doc.text('สถานะทรัพย์สิน :', 335, 210, {
+          width: 410
+        });
+        doc.text('คุณ ' + Owner[0].Firstname + ' ' + Owner[0].Lastname, 335, 255, {
+          width: 410
+        });
+        doc.text('อีเมล :', 335, 270, {
+          width: 410
+        });
+        doc.text('เบอร์โทร :', 335, 285, {
+          width: 410
+        });
+        // result
+        doc.text(house[0].PropertyType, 200, 195, {
+          width: 410
+        });
+        doc.text(house[0].CodeDeed, 200, 210, {
+          width: 410
+        });
+        doc.text(house[0].HomeCondition, 200, 225, {
+          width: 410
+        });
+        doc.text(house[0].BuildingAge + ' ปี', 200, 240, {
+          width: 410
+        });
+        doc.text(house[0].Directions, 200, 255, {
+          width: 410
+        });
+        doc.text(house[0].SellPrice + ' บาท', 200, 285, {
+          width: 410
+        });
+        doc.text(house[0].CostestimateB + ' บาท', 200, 300, {
+          width: 410
+        });
+        doc.text(house[0].MarketPrice + ' บาท', 200, 315, {
+          width: 410
+        });
+        doc.text('10%', 200, 330, {
+          width: 410
+        });
+        doc.text(house[0].BathRoom + ' ห้อง', 200, 375, {
+          width: 410
+        });
+        doc.text(house[0].BedRoom + ' ห้อง', 200, 390, {
+          width: 410
+        });
+        doc.text(house[0].CarPark + ' ที่', 200, 405, {
+          width: 410
+        });
+        doc.text(house[0].HouseArea + ' ตารางวา', 200, 420, {
+          width: 410
+        });
+        doc.text(house[0].Floor, 200, 435, {
+          width: 410
+        });
+        // right
+        doc.text(house[0].PPStatus, 435, 195, {
+          width: 410
+        });
+        doc.text(house[0].AsseStatus, 435, 210, {
+          width: 41
+        });
+        doc.text(Owner[0].Email, 435, 270, {
+          width: 410
+        });
+        doc.text(Owner[0].Phone, 435, 285, {
+          width: 410
+        });
+        doc.font('service/THSarabun.ttf', 10)
+        doc.text(house[0].Location + ',' + house[0].LDistrict + ',' + house[0].LAmphur + ',' + house[0].LProvince + ' ประเทศไทย ' + house[0].LZipCode, 335, 330)
+        doc.image(body, 335, 345, {
+          width: 250,
+          height: 110
+        })
+        /*images.forEach(function (el) {
+          doc.addPage().image(el.data, {
+            fit: [500, 400],
+            align: 'center',
+            valign: 'center'
+          })
+        })*/
+
+
+        doc.end(); // Close document and, by extension, response
+        return;
+      });
+    })
+    .catch(err => {
+      res.send('error: ' + err)
+    })
+})
 
 
 
