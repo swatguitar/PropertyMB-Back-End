@@ -76,9 +76,7 @@ app.get('/recommendHouse', (req, res) => {
   processPY.stdout.on('data', function (data) {
 
     console.log(data.toString());
-    res.json({
-      Result: data.toString()
-    })
+  
     res.end('end');
   });
 })
