@@ -6,6 +6,10 @@
 # ### Import Libraries
 
 # In[1]:
+import os
+os.system('pip install pandas')
+os.system('pip install mysql-connector')
+os.system('pip install sklearn')
 
 
 import sys
