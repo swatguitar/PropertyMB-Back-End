@@ -47,7 +47,7 @@ if con.is_connected():
 # In[3]:
 
 
-SQL_Query_Land = pd.read_sql_query("SELECT ID_Lands,ColorType,CostestimateB,SellPrice,MarketPrice,AsseStatus,RoadType,GroundLevel FROM lands", con)
+SQL_Query_Land = pd.read_sql_query("SELECT ID_Lands,ColorType,CostestimateB,SellPrice,MarketPrice,AsseStatus,RoadType,GroundLevel FROM lands WHERE ID_Lands ="+sys.argv[1], con)
 df_land = pd.DataFrame(SQL_Query_Land)
 
 if (con.is_connected()):

@@ -46,7 +46,7 @@ if con.is_connected():
 
 
 SQL_Query_House = pd.read_sql_query(
-    "SELECT ID_Property,PropertyType,CostestimateB,SellPrice,MarketPrice,AsseStatus,RoadType,HouseArea,Floor,HomeCondition,BuildingAge FROM propertys WHERE ID_Property = 'c0205'", con)
+    "SELECT ID_Property,PropertyType,CostestimateB,SellPrice,MarketPrice,AsseStatus,RoadType,HouseArea,Floor,HomeCondition,BuildingAge FROM propertys WHERE ID_Property = "+sys.argv[1], con)
 df_house = pd.DataFrame(SQL_Query_House)
 
 if (con.is_connected()):

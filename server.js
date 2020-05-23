@@ -61,6 +61,9 @@ app.listen(port, function () {
 
 
 
+app.get('/', (req, res) => {
+  res.end('Welcom to PropertyMB Backend');
+})
 
 
 app.get('/recommendHouse', (req, res) => {
@@ -86,16 +89,14 @@ app.get('/recommendLand', (req, res) => {
   const {
     spawn
   } = require('child_process');
-  const processPY = spawn('py', ['./Model_Land_Connect_Database-Debug01.py',
+  const processPY = spawn('python', ['./Model_Land_Connect_Database-Debug01.py',
     req.query.ID_Lands = req.body.ID_Lands,
   ]);
 
   processPY.stdout.on('data', function (data) {
 
     console.log(data.toString());
-    res.json({
-      Result: 'Succress'
-    })
+  
     res.end('end');
   });
 })
