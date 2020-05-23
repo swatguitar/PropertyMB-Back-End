@@ -6,7 +6,6 @@
 # ### Import Libraries
 
 # In[1]:
-
 import sys
 print("Python: {}".format(sys.version))
 import pandas as pd
