@@ -483,6 +483,7 @@ land.post('/LandPDF', (req, res) => {
     size: 'A4'
   })
   let uri = req.body.URL
+  let Owner = []
   let images = []
   let count = 0
   let X = 0

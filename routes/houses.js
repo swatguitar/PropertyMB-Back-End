@@ -591,7 +591,7 @@ house.post('/HousePDF', (req, res) => {
   let filename = req.body.filename
   let uri = req.body.URL
   let image = 'https://backendppmb.s3.us-east-2.amazonaws.com/img_1587565164509.jpg'
-  let Owner
+  let Owner = []
   let images = []
   let count = 0
   let X = 0
