@@ -594,13 +594,17 @@ house.post('/HousePDF', (req, res) => {
   let Owner
   let images = []
   let count = 0
-  let filesLoaded = 0
+  let X = 0
+  let Y = 0
+  let sortX = 0
+  let sortY = 0
   img.findAll({
     where: {
       ID_property: req.body.ID_Property
     }
   }).then(result => {
     images = result
+    console.log(images[0].URL)
   });
   House.findAll({
       where: {
@@ -608,11 +612,7 @@ house.post('/HousePDF', (req, res) => {
       }
     })
     .then(house => {
-      res.setHeader(
-        'Content-Type', 'application/pdf',
-        'Access-Control-Allow-Origin', '*',
-        'Content-Disposition', 'attachment; filename="' + house[0].ID_Property + '"'
-      );
+
       User.findAll({
         where: {
           ID_User: house[0].Owner
@@ -620,13 +620,41 @@ house.post('/HousePDF', (req, res) => {
       }).then(result => {
         Owner = result
       });
-      doc.pipe(res)
-      /* request(image, function (error, response, body) {
-        doc.image(body, 60, 465, {
-          width: 130,
-          height: 110
-        })
-        });*/
+
+      for (var image in images) {
+        console.log(images[image].URL)
+        request({
+          url: images[image].URL,
+          encoding: null // Prevents Request from converting response to string
+        }, function (error, response, body) {
+          count = count+1
+         
+          sortX = sortX+1
+        if(sortX <= 3){
+          doc.image(body, 95+X, 485+Y, {
+            width: 130,
+            height: 110
+          })
+          X = X+140
+        }
+        else{
+          Y = Y+120
+          X = 0
+          doc.image(body, 95+X, 485+Y, {
+            width: 130,
+            height: 110
+          })
+          sortX = 0
+        }
+         
+          if(count == images.length || count== 9){
+            doc.end(); // Close document and, by extension, respons
+          }
+          return;
+        });
+
+      }
+
       request({
         url: uri,
         encoding: null // Prevents Request from converting response to string
@@ -646,7 +674,11 @@ house.post('/HousePDF', (req, res) => {
         doc.text(house[0].AnnounceTH, 50, 130, {
           width: 600
         }).font('service/THSarabun.ttf', 13);
-        doc.text(house[0].Location + ',' + house[0].LDistrict + ',' + house[0].LAmphur + ',' + house[0].LProvince + ' ประเทศไทย ' + house[0].LZipCode, 50, 150).font('service/THSarabun-Bold.ttf', 14);
+        doc.image('service/Mark.png', 50, 152, {
+          width: 10,
+          height: 10
+        });
+        doc.text(house[0].Location + ',' + house[0].LDistrict + ',' + house[0].LAmphur + ',' + house[0].LProvince + ' ประเทศไทย ' + house[0].LZipCode, 60, 150).font('service/THSarabun-Bold.ttf', 14);
         doc.image('service/hr.png', 295, 165, {
           width: 10,
           height: 300
@@ -781,23 +813,24 @@ house.post('/HousePDF', (req, res) => {
           width: 410
         });
         doc.font('service/THSarabun.ttf', 10)
-        doc.text(house[0].Location + ',' + house[0].LDistrict + ',' + house[0].LAmphur + ',' + house[0].LProvince + ' ประเทศไทย ' + house[0].LZipCode, 335, 330)
-        doc.image(body, 335, 345, {
+        doc.text(house[0].Location + ',' + house[0].LDistrict + ',' + house[0].LAmphur + ',' + house[0].LProvince + ' ประเทศไทย ' + house[0].LZipCode, 340, 330)
+        doc.image('service/Mark.png', 335, 333, {
+          width: 5,
+          height: 5
+        });
+        doc.image(body, 335, 355, {
           width: 250,
           height: 110
         })
-        /*images.forEach(function (el) {
-          doc.addPage().image(el.data, {
-            fit: [500, 400],
-            align: 'center',
-            valign: 'center'
-          })
-        })*/
 
-
-        doc.end(); // Close document and, by extension, response
         return;
       });
+      res.setHeader(
+        'Content-Type', 'application/pdf',
+        'Access-Control-Allow-Origin', '*',
+        'Content-Disposition', 'attachment; filename="' + house[0].ID_Property + '"'
+      );
+      doc.pipe(res)
     })
     .catch(err => {
       res.send('error: ' + err)
