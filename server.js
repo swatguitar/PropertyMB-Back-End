@@ -66,9 +66,10 @@ app.get('/', (req, res) => {
 })
 
 
-app.get('/recommendHouse', (req, res) => {
+app.post('/recommendHouse', (req, res) => {
   //var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
   // 'py' is use in cmd python
+  console.log("Property ID FN is : " +req.body.ID_Property);
   const {
     spawn
   } = require('child_process');
@@ -84,8 +85,9 @@ app.get('/recommendHouse', (req, res) => {
   });
 })
 
-app.get('/recommendLand', (req, res) => {
+app.post('/recommendLand', (req, res) => {
   //var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+  console.log("Property ID FN is : " +req.body.ID_Property);
   const {
     spawn
   } = require('child_process');

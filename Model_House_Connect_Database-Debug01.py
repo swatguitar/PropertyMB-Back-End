@@ -38,7 +38,7 @@ if con.is_connected():
     cur.execute("select database();")
     record = cur.fetchone()
     print("You\'r connected to the database: ", record)
-
+    print("Property ID is: ", sys.argv[1])
 
 # ### Execute the Query
 
@@ -46,7 +46,7 @@ if con.is_connected():
 
 
 SQL_Query_House = pd.read_sql_query(
-    "SELECT ID_Property,PropertyType,CostestimateB,SellPrice,MarketPrice,AsseStatus,RoadType,HouseArea,Floor,HomeCondition,BuildingAge FROM propertys WHERE ID_Property = "+sys.argv[1], con)
+    "SELECT ID_Property,PropertyType,CostestimateB,SellPrice,MarketPrice,AsseStatus,RoadType,HouseArea,Floor,HomeCondition,BuildingAge FROM propertys WHERE ID_Property = '"+sys.argv[1]+"'", con)
 df_house = pd.DataFrame(SQL_Query_House)
 
 if (con.is_connected()):

@@ -34,8 +34,8 @@ const FileFilter = (req, file, cd) => {
 }
 //************* Config Amazon s3 bucket *************
 aws.config.update({
-  secretAccessKey: 'ske3uOIYveU9sN4WjWc0KKfEfmAdMc0uMAkAY2f7',
-  accessKeyId: 'AKIAJMSJLXE6OBJ5OFJA',
+  secretAccessKey: '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',
+  accessKeyId: 'AKIAI33B4OH6PHPXRPPQ',
   region: 'us-east-2'
 })
 var s3 = new aws.S3()
@@ -617,220 +617,218 @@ house.post('/HousePDF', (req, res) => {
         where: {
           ID_User: house[0].Owner
         }
-      }).then(result => {
-        Owner = result
-      });
-
-      for (var image in images) {
-        console.log(images[image].URL)
+      }).then(Owner => {
         request({
-          url: images[image].URL,
+          url: uri,
           encoding: null // Prevents Request from converting response to string
-        }, function (error, response, body) {
-          count = count+1
-         
-          sortX = sortX+1
-        if(sortX <= 3){
-          doc.image(body, 95+X, 485+Y, {
-            width: 130,
+        }, function (err, response, body) {
+          if (err) throw err;
+          // Using a TrueType font (.ttf)
+          //console.log(response)
+          doc.font('service/THSarabun-Bold.ttf', 23);
+          doc.image('service/Navbar.png', 260, 10, {
+            width: 90,
+            height: 90
+          });
+          doc.image('service/Capture.PNG', 230, 60, {
+            width: 160,
+            height: 70
+          });
+          doc.text(house[0].AnnounceTH, 50, 130, {
+            width: 600
+          }).font('service/THSarabun.ttf', 13);
+          doc.image('service/Mark.png', 50, 152, {
+            width: 10,
+            height: 10
+          });
+          doc.text(house[0].Location + ',' + house[0].LDistrict + ',' + house[0].LAmphur + ',' + house[0].LProvince + ' ประเทศไทย ' + house[0].LZipCode, 60, 150).font('service/THSarabun-Bold.ttf', 14);
+          doc.image('service/hr.png', 295, 165, {
+            width: 10,
+            height: 300
+          });
+          doc.text('รายละเอียด', 60, 360, {
+            width: 410
+          });
+          doc.text('ข้อมูลสถานที่', 335, 315, {
+            width: 410
+          });
+          doc.text('รูปภาพ', 60, 465, {
+            width: 410
+          });
+          doc.text('ข้อมูลการติดต่อ', 335, 240, {
+            width: 410
+          });
+          doc.text('ข้อมูลทั่วไป', 60, 180, {
+            width: 410
+          }).font('service/THSarabun.ttf', 13);
+          doc.text('ประเภทอสังหาฯ :', 60, 195, {
+            width: 410
+          });
+          doc.text('รหสัอสังหาฯ :', 60, 210, {
+            width: 410
+          });
+          doc.text('สภาพ :', 60, 225, {
+            width: 410
+          });
+          doc.text('ปีที่ก่อสร้าง :', 60, 240, {
+            width: 410
+          });
+          doc.text('ทิศด้านหน้า :', 60, 255, {
+            width: 410
+          });
+          doc.text('ราคาขาย :', 60, 285, {
+            width: 410
+          });
+          doc.text('ราคาประเมิน :', 60, 300, {
+            width: 410
+          });
+          doc.text('ราคาตลาด :', 60, 315, {
+            width: 410
+          });
+          doc.text('**วางเงินมัดจำ', 60, 330, {
+            width: 410
+          });
+          doc.text('ห้องน้ำ :', 60, 375, {
+            width: 410
+          });
+          doc.text('ห้องนอน :', 60, 390, {
+            width: 410
+          });
+          doc.text('ที่จอดรถ :', 60, 405, {
+            width: 410
+          });
+          doc.text('พื้นที่ใช้สอย :', 60, 420, {
+            width: 410
+          });
+          doc.text('จำนวนชั้น/ชั้นที่อาศัยอยู่ :', 60, 435, {
+            width: 410
+          });
+          // right
+          doc.text('สถานะการซื้อขาย :', 335, 195, {
+            width: 410
+          });
+          doc.text('สถานะทรัพย์สิน :', 335, 210, {
+            width: 410
+          });
+          doc.text('คุณ ' + Owner[0].Firstname + ' ' + Owner[0].Lastname, 335, 255, {
+            width: 410
+          });
+          doc.text('อีเมล :', 335, 270, {
+            width: 410
+          });
+          doc.text('เบอร์โทร :', 335, 285, {
+            width: 410
+          });
+          // result
+          doc.text(house[0].PropertyType, 200, 195, {
+            width: 410
+          });
+          doc.text(house[0].CodeDeed, 200, 210, {
+            width: 410
+          });
+          doc.text(house[0].HomeCondition, 200, 225, {
+            width: 410
+          });
+          doc.text(house[0].BuildingAge + ' ปี', 200, 240, {
+            width: 410
+          });
+          doc.text(house[0].Directions, 200, 255, {
+            width: 410
+          });
+          doc.text(house[0].SellPrice + ' บาท', 200, 285, {
+            width: 410
+          });
+          doc.text(house[0].CostestimateB + ' บาท', 200, 300, {
+            width: 410
+          });
+          doc.text(house[0].MarketPrice + ' บาท', 200, 315, {
+            width: 410
+          });
+          doc.text('10%', 200, 330, {
+            width: 410
+          });
+          doc.text(house[0].BathRoom + ' ห้อง', 200, 375, {
+            width: 410
+          });
+          doc.text(house[0].BedRoom + ' ห้อง', 200, 390, {
+            width: 410
+          });
+          doc.text(house[0].CarPark + ' ที่', 200, 405, {
+            width: 410
+          });
+          doc.text(house[0].HouseArea + ' ตารางวา', 200, 420, {
+            width: 410
+          });
+          doc.text(house[0].Floor, 200, 435, {
+            width: 410
+          });
+          // right
+          doc.text(house[0].PPStatus, 435, 195, {
+            width: 410
+          });
+          doc.text(house[0].AsseStatus, 435, 210, {
+            width: 41
+          });
+          doc.text(Owner[0].Email, 435, 270, {
+            width: 410
+          });
+          doc.text(Owner[0].Phone, 435, 285, {
+            width: 410
+          });
+          doc.font('service/THSarabun.ttf', 10)
+          doc.text(house[0].Location + ',' + house[0].LDistrict + ',' + house[0].LAmphur + ',' + house[0].LProvince + ' ประเทศไทย ' + house[0].LZipCode, 340, 330)
+          doc.image('service/Mark.png', 335, 333, {
+            width: 5,
+            height: 5
+          });
+          doc.image(body, 335, 355, {
+            width: 250,
             height: 110
           })
-          X = X+140
-        }
-        else{
-          Y = Y+120
-          X = 0
-          doc.image(body, 95+X, 485+Y, {
-            width: 130,
-            height: 110
-          })
-          sortX = 0
-        }
-         
-          if(count == images.length || count== 9){
-            doc.end(); // Close document and, by extension, respons
-          }
+  
           return;
         });
-
-      }
-
-      request({
-        url: uri,
-        encoding: null // Prevents Request from converting response to string
-      }, function (err, response, body) {
-        if (err) throw err;
-        // Using a TrueType font (.ttf)
-        //console.log(response)
-        doc.font('service/THSarabun-Bold.ttf', 23);
-        doc.image('service/Navbar.png', 260, 10, {
-          width: 90,
-          height: 90
-        });
-        doc.image('service/Capture.PNG', 230, 60, {
-          width: 160,
-          height: 70
-        });
-        doc.text(house[0].AnnounceTH, 50, 130, {
-          width: 600
-        }).font('service/THSarabun.ttf', 13);
-        doc.image('service/Mark.png', 50, 152, {
-          width: 10,
-          height: 10
-        });
-        doc.text(house[0].Location + ',' + house[0].LDistrict + ',' + house[0].LAmphur + ',' + house[0].LProvince + ' ประเทศไทย ' + house[0].LZipCode, 60, 150).font('service/THSarabun-Bold.ttf', 14);
-        doc.image('service/hr.png', 295, 165, {
-          width: 10,
-          height: 300
-        });
-        doc.text('รายละเอียด', 60, 360, {
-          width: 410
-        });
-        doc.text('ข้อมูลสถานที่', 335, 315, {
-          width: 410
-        });
-        doc.text('รูปภาพ', 60, 465, {
-          width: 410
-        });
-        doc.text('ข้อมูลการติดต่อ', 335, 240, {
-          width: 410
-        });
-        doc.text('ข้อมูลทั่วไป', 60, 180, {
-          width: 410
-        }).font('service/THSarabun.ttf', 13);
-        doc.text('ประเภทอสังหาฯ :', 60, 195, {
-          width: 410
-        });
-        doc.text('รหสัอสังหาฯ :', 60, 210, {
-          width: 410
-        });
-        doc.text('สภาพ :', 60, 225, {
-          width: 410
-        });
-        doc.text('ปีที่ก่อสร้าง :', 60, 240, {
-          width: 410
-        });
-        doc.text('ทิศด้านหน้า :', 60, 255, {
-          width: 410
-        });
-        doc.text('ราคาขาย :', 60, 285, {
-          width: 410
-        });
-        doc.text('ราคาประเมิน :', 60, 300, {
-          width: 410
-        });
-        doc.text('ราคาตลาด :', 60, 315, {
-          width: 410
-        });
-        doc.text('**วางเงินมัดจำ', 60, 330, {
-          width: 410
-        });
-        doc.text('ห้องน้ำ :', 60, 375, {
-          width: 410
-        });
-        doc.text('ห้องนอน :', 60, 390, {
-          width: 410
-        });
-        doc.text('ที่จอดรถ :', 60, 405, {
-          width: 410
-        });
-        doc.text('พื้นที่ใช้สอย :', 60, 420, {
-          width: 410
-        });
-        doc.text('จำนวนชั้น/ชั้นที่อาศัยอยู่ :', 60, 435, {
-          width: 410
-        });
-        // right
-        doc.text('สถานะการซื้อขาย :', 335, 195, {
-          width: 410
-        });
-        doc.text('สถานะทรัพย์สิน :', 335, 210, {
-          width: 410
-        });
-        doc.text('คุณ ' + Owner[0].Firstname + ' ' + Owner[0].Lastname, 335, 255, {
-          width: 410
-        });
-        doc.text('อีเมล :', 335, 270, {
-          width: 410
-        });
-        doc.text('เบอร์โทร :', 335, 285, {
-          width: 410
-        });
-        // result
-        doc.text(house[0].PropertyType, 200, 195, {
-          width: 410
-        });
-        doc.text(house[0].CodeDeed, 200, 210, {
-          width: 410
-        });
-        doc.text(house[0].HomeCondition, 200, 225, {
-          width: 410
-        });
-        doc.text(house[0].BuildingAge + ' ปี', 200, 240, {
-          width: 410
-        });
-        doc.text(house[0].Directions, 200, 255, {
-          width: 410
-        });
-        doc.text(house[0].SellPrice + ' บาท', 200, 285, {
-          width: 410
-        });
-        doc.text(house[0].CostestimateB + ' บาท', 200, 300, {
-          width: 410
-        });
-        doc.text(house[0].MarketPrice + ' บาท', 200, 315, {
-          width: 410
-        });
-        doc.text('10%', 200, 330, {
-          width: 410
-        });
-        doc.text(house[0].BathRoom + ' ห้อง', 200, 375, {
-          width: 410
-        });
-        doc.text(house[0].BedRoom + ' ห้อง', 200, 390, {
-          width: 410
-        });
-        doc.text(house[0].CarPark + ' ที่', 200, 405, {
-          width: 410
-        });
-        doc.text(house[0].HouseArea + ' ตารางวา', 200, 420, {
-          width: 410
-        });
-        doc.text(house[0].Floor, 200, 435, {
-          width: 410
-        });
-        // right
-        doc.text(house[0].PPStatus, 435, 195, {
-          width: 410
-        });
-        doc.text(house[0].AsseStatus, 435, 210, {
-          width: 41
-        });
-        doc.text(Owner[0].Email, 435, 270, {
-          width: 410
-        });
-        doc.text(Owner[0].Phone, 435, 285, {
-          width: 410
-        });
-        doc.font('service/THSarabun.ttf', 10)
-        doc.text(house[0].Location + ',' + house[0].LDistrict + ',' + house[0].LAmphur + ',' + house[0].LProvince + ' ประเทศไทย ' + house[0].LZipCode, 340, 330)
-        doc.image('service/Mark.png', 335, 333, {
-          width: 5,
-          height: 5
-        });
-        doc.image(body, 335, 355, {
-          width: 250,
-          height: 110
-        })
-
-        return;
+        for (var image in images) {
+          console.log(images[image].URL)
+          request({
+            url: images[image].URL,
+            encoding: null // Prevents Request from converting response to string
+          }, function (error, response, body) {
+            count = count+1
+           
+            sortX = sortX+1
+          if(sortX <= 3){
+            doc.image(body, 95+X, 485+Y, {
+              width: 130,
+              height: 110
+            })
+            X = X+140
+          }
+          else{
+            Y = Y+120
+            X = 0
+            doc.image(body, 95+X, 485+Y, {
+              width: 130,
+              height: 110
+            })
+            sortX = 0
+          }
+           
+            if(count == images.length || count== 9){
+              doc.end(); // Close document and, by extension, respons
+            }
+            return;
+          });
+  
+        }
+        res.setHeader(
+          'Content-Type', 'application/pdf',
+          'Access-Control-Allow-Origin', '*',
+          'Content-Disposition', 'attachment; filename="' + house[0].ID_Property + '"'
+        );
+        doc.pipe(res)
       });
-      res.setHeader(
-        'Content-Type', 'application/pdf',
-        'Access-Control-Allow-Origin', '*',
-        'Content-Disposition', 'attachment; filename="' + house[0].ID_Property + '"'
-      );
-      doc.pipe(res)
+
     })
     .catch(err => {
       res.send('error: ' + err)

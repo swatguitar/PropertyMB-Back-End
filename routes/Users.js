@@ -36,8 +36,8 @@ const FileFilter = (req, file, cd) => {
 }
 //************* Config Amazon s3 bucket *************
 aws.config.update({
-  secretAccessKey: 'ske3uOIYveU9sN4WjWc0KKfEfmAdMc0uMAkAY2f7',
-  accessKeyId: 'AKIAJMSJLXE6OBJ5OFJA',
+  secretAccessKey: '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',
+  accessKeyId: 'AKIAI33B4OH6PHPXRPPQ',
   region: 'us-east-2'
 })
 var s3 = new aws.S3()
