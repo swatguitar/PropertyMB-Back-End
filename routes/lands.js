@@ -32,7 +32,7 @@ const FileFilter = (req, file, cd) => {
 aws.config.update({
   secretAccessKey: 'ue9Y+2yQawDM7fsxuiAb2DMcX5Cikk1xMOhWSegl',
   accessKeyId: 'AKIAI33B4OH6PHPXRPPQ',
-  region: 'us-east-2'
+  region: 'us-east-1'
 })
 var s3 = new aws.S3()
 var uploadS3 = multer({
