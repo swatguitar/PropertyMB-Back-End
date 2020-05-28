@@ -289,7 +289,7 @@ users.post('/compareToken', (req, res) => {
     })
     .then(user => {
       if (user) {
-        if (bcrypt.compareSync(req.body.Token, user.Token)) {
+        if (bcrypt.compareSync(req.body.Token, user[0].Token)) {
           User.update({
               Token: " "
             }, {
