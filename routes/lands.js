@@ -542,7 +542,7 @@ land.post('/LandPDF', (req, res) => {
         );
         res.writeHead(200, {
           'Content-Type': 'application/pdf',
-          'Content-Disposition': 'attachment; filename="' + land[0].ID_Property + '".pdf'
+          'Content-Disposition': 'attachment; filename="' + land[0].ID_Lands + '".pdf'
         });
         doc.pipe(res)
         request({
