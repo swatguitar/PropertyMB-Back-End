@@ -399,7 +399,7 @@ users.put('/removeimg', (req, res, next) => {
 
 //************* Find Email *************
 users.post('/GetEmail', (req, res) => {
-  User.findOne({
+  User.findAll({
       where: {
         Email: req.body.Email
       }
@@ -477,7 +477,7 @@ users.post('/uploadprofile', function (req, res, next) {
       ProfileImg: null
     }
     if (req.file) {
-      imgData.ProfileImg = req.file.locaation
+      imgData.ProfileImg = req.file.location
       User.update(imgData, {
           where: {
             ID_User: ID.ID_User
