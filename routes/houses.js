@@ -886,6 +886,7 @@ house.post('/HousePDF', (req, res) => {
           })
 
           F = true
+          console.log('F:'+F)
           if (images.length == 0 || IF == true) {
             doc.end()
           }

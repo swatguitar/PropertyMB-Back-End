@@ -542,7 +542,7 @@ land.post('/LandPDF', (req, res) => {
         );
         res.writeHead(200, {
           'Content-Type': 'application/pdf',
-          'Content-Disposition': 'attachment; filename="' + house[0].ID_Property + '".pdf'
+          'Content-Disposition': 'attachment; filename="' + land[0].ID_Property + '".pdf'
         });
         doc.pipe(res)
         request({
@@ -702,6 +702,7 @@ land.post('/LandPDF', (req, res) => {
             height: 110
           })
           F = true
+          console.log('F:'+F)
           if (images.length == 0 || IF == true) {
             doc.end()
           }
