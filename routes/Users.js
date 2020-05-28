@@ -228,7 +228,7 @@ users.post('/sendEmail', (req, res) => {
             //Phone: moment.utc().add(config.tokenExpiry, 'seconds'),
           }, {
             where: {
-              Email: user.Email
+              Email: user[0].Email
             }
           }).then(function (item) {
             if (!item) {
@@ -239,7 +239,7 @@ users.post('/sendEmail', (req, res) => {
 
               let mailOptions = {
                 from: '"<PropertyMB Team>" propertymb@landvist.xyz',
-                to: user.Email,
+                to: user[0].Email,
                 subject: 'คำร้องขอรีเซ็ทรหัสผ่าน PropertyMB',
                 html: '<hr><h2 style="text-align: center">PropertyMB</h2><hr>' +
                   '<img src="https://www.landvist.xyz/images/Defult/logo2.png">' +
