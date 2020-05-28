@@ -104,7 +104,7 @@ var storage = sftpStorage({
     cb(null, '/domains/landvist.xyz/public_html/images/NewImg');
   },
   filename: function (req, file, cb) {
-    cb(null, '/domains/landvist.xyz/public_html/images/NewImg/img_' + Date.now() + '.jpg')
+    cb(null, 'img_' + Date.now() + '.jpg')
   }
 })
 

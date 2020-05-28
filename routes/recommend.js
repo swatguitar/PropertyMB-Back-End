@@ -81,7 +81,7 @@ recommend.put('/LandRecommend', (req, res) => {
 })
 
 //************* get land by UserType Mobile *************
-recommend.put('/LandRecommend', (req, res) => {
+recommend.put('/LandRecommendMobile', (req, res) => {
     //var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
 
     Land.findAll({
