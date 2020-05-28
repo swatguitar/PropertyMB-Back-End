@@ -9,6 +9,7 @@ var randomize = require('randomatic');
 var multer = require('multer')
 var aws = require('aws-sdk')
 var multerS3 = require('multer-s3')
+var sftpStorage = require('multer-sftp')
 
 process.env.SECRET_KEY = 'secret'
 users.use(cors())
@@ -24,6 +25,22 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+//************* Config Hostinger bucket *************
+var storage = sftpStorage({
+  sftp: {
+    host: '156.67.222.168',
+    port: 65002,
+    username: 'u656477047',
+    password: 'tar15234'
+
+  },
+  destination: function (req, file, cb) {
+    cb(null, '/domains/landvist.xyz/public_html/images/NewImg')
+  },
+  filename: function (req, file, cb) {
+    cb(null, 'img_' + Date.now() + '.jpg')
+  }
+})
 
 //************* FileFilter to filter image before upload *************
 const FileFilter = (req, file, cd) => {
@@ -35,10 +52,10 @@ const FileFilter = (req, file, cd) => {
   }
 }
 //************* Config Amazon s3 bucket *************
-aws.config.update({
-  secretAccessKey: 'ue9Y+2yQawDM7fsxuiAb2DMcX5Cikk1xMOhWSegl',
-  accessKeyId: 'AKIAI33B4OH6PHPXRPPQ',
-  region: 'us-east-1'
+/*aws.config.update({
+  secretAccessKey: 'FOwpx/09x7mWBwtuRa6GoILjKER23RQbOvKqxU9/',
+  accessKeyId: 'AKIAIH5UYQ4D2YZCUDEA',
+  region: 'us-east-2'
 })
 var s3 = new aws.S3()
 var uploadS3 = multer({
@@ -59,10 +76,14 @@ var uploadS3 = multer({
       cb(null, 'img_' + Date.now() + '.jpg')
     }
   })
-})
+})*/
 
 //** config file **
-const uploadImg = uploadS3.single('file');
+//const uploadImg = uploadS3.single('file');
+var uploadImg = multer({
+  storage: storage
+}).single('file');
+//const uploadImg = uploadFTP.single('file');
 
 
 //************* register *************

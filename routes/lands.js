@@ -3,6 +3,7 @@ var land = express.Router()
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
 var multer = require('multer')
+var request = require('request')
 var aws = require('aws-sdk')
 var multerS3 = require('multer-s3')
 const PDFDocument = require('pdfkit')
@@ -14,10 +15,27 @@ const Land = require('../models/Land')
 const imgL = require('../models/ImgLand')
 const User = require('../models/User')
 const db = require('../database/db.js')
+var sftpStorage = require('multer-sftp')
 
 process.env.SECRET_KEY = 'secret'
 land.use(cors())
 
+//************* Config Hostinger bucket *************
+var storage = sftpStorage({
+  sftp: {
+    host: '156.67.222.168',
+    port: 65002,
+    username: 'u656477047',
+    password: 'tar15234'
+
+  },
+  destination: function (req, file, cb) {
+    cb(null, '/domains/landvist.xyz/public_html/images/NewImg')
+  },
+  filename: function (req, file, cb) {
+    cb(null, 'img_' + Date.now() + '.jpg')
+  }
+})
 
 //************* FileFilter to filter image before upload *************
 const FileFilter = (req, file, cd) => {
@@ -29,10 +47,10 @@ const FileFilter = (req, file, cd) => {
   }
 }
 //************* Config Amazon s3 bucket *************
-aws.config.update({
-  secretAccessKey: 'ue9Y+2yQawDM7fsxuiAb2DMcX5Cikk1xMOhWSegl',
-  accessKeyId: 'AKIAI33B4OH6PHPXRPPQ',
-  region: 'us-east-1'
+/*aws.config.update({
+  secretAccessKey: 'FOwpx/09x7mWBwtuRa6GoILjKER23RQbOvKqxU9/',
+  accessKeyId: 'AKIAIH5UYQ4D2YZCUDEA',
+  region: 'us-east-2'
 })
 var s3 = new aws.S3()
 var uploadS3 = multer({
@@ -53,10 +71,14 @@ var uploadS3 = multer({
       cb(null, 'img_' + Date.now() + '.jpg')
     }
   })
-})
+})*/
 
 //** config file **
-const uploadImg = uploadS3.single('file');
+//const uploadImg = uploadS3.single('file');
+var uploadImg = multer({
+  storage: storage
+}).single('file');
+//const uploadImg = uploadFTP.single('file');
 
 //************* get all Land *************
 land.get('/landsall', (req, res, next) => {
@@ -101,7 +123,7 @@ land.post('/filterLand', (req, res) => {
     if (req.body.PropertyType != '' && req.body.PropertyType != null) {
       condition += " AND ColorType = '" + req.body.PropertyType + "'"
     }
-     if (req.body.Deed != '' && req.body.Deed != null) {
+    if (req.body.Deed != '' && req.body.Deed != null) {
       condition += " AND Deed = '" + req.body.Deed + "'"
     }
     if (req.body.LProvince != '' && req.body.LProvince != null) {
@@ -217,7 +239,7 @@ land.put('/land/DeleteImage', (req, res, next) => {
         data = Image.map(row => {
           return row.File_Name
         });
-       if (data != null) {
+        if (data != null) {
           params = {
             Bucket: 'backendppmb',
             Key: data[0]
@@ -227,15 +249,15 @@ land.put('/land/DeleteImage', (req, res, next) => {
             else console.log(data); // deleted
           });
           img.destroy({
-            where: {
-              ID_Photo: req.body.ID_Photo
-            }
-          }).then(() => {
-            res.json('ลบรูปภาพเสำเร็จ')
-          })
-          .catch(err => {
-            res.json('error: ' + err)
-          })
+              where: {
+                ID_Photo: req.body.ID_Photo
+              }
+            }).then(() => {
+              res.json('ลบรูปภาพเสำเร็จ')
+            })
+            .catch(err => {
+              res.json('error: ' + err)
+            })
         }
       } else {
         res.json({
@@ -256,13 +278,14 @@ land.put('/UpdateStatusL', (req, res, next) => {
       error: 'กรุณาเลือกอสังหาฯ'
     })
   } else {
-    Land.update(
-      { 
+    Land.update({
         PPStatus: req.body.PPStatus
-     
-         },
-      { where: {ID_Lands: req.body.ID_Lands } }
-    )
+
+      }, {
+        where: {
+          ID_Lands: req.body.ID_Lands
+        }
+      })
       .then(() => {
         res.json('แก้ไขสำเร็จ')
       })
@@ -284,7 +307,7 @@ land.post('/uploadImageL', function (req, res, next) {
       File_Name: null
     }
     if (req.file) {
-      imgData.URL = req.file.location
+      imgData.URL = "https://landvist.xyz/images/NewImg/"+req.file.filename
       imgData.File_Name = req.file.filename
       imgL.create(imgData)
         .then(land => {
@@ -294,7 +317,7 @@ land.post('/uploadImageL', function (req, res, next) {
           res.send('error: ' + err)
         })
       Land.update({
-        ImageEX: req.file.location
+        ImageEX: "https://landvist.xyz/images/NewImg/"+req.file.filename
       }, {
         where: {
           ID_Lands: req.body.ID_lands
@@ -326,10 +349,11 @@ land.put('/landUpdate', (req, res) => {
   var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
 
   Land.findAll({
-    where: {
-      Owner: decoded.ID_User, ID_Lands: req.body.ID_Lands
-    }
-  })
+      where: {
+        Owner: decoded.ID_User,
+        ID_Lands: req.body.ID_Lands
+      }
+    })
     .then(land => {
       if (land) {
         res.json(land)
@@ -398,10 +422,10 @@ land.post('/addland', (req, res) => {
   }
   Land.create(landData)
     .then(land => {
-      if(!land){
+      if (!land) {
         res.json("ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีครั้ง")
-      }else{
-        res.json("บันทึกสำเร็จ กดปุ่ม 'ถัดไป'") 
+      } else {
+        res.json("บันทึกสำเร็จ กดปุ่ม 'ถัดไป'")
       }
     })
     .catch(err => {
@@ -419,8 +443,7 @@ land.put('/EditLand', (req, res, next) => {
       error: 'ไม่พบอสังหาฯ'
     })
   } else {
-    Land.update(
-      { 
+    Land.update({
         ColorType: req.body.ColorType,
         AnnounceTH: req.body.AnnounceTH,
         CodeDeed: req.body.ID_Lands,
@@ -467,9 +490,12 @@ land.put('/EditLand', (req, res, next) => {
         Letc: req.body.Letc,
         LandAge: req.body.LandAge,
         Created: req.body.LandAge,
-        WxD: req.body.WxD },
-      { where: { ID_Lands: req.body.ID_Lands } }
-    )
+        WxD: req.body.WxD
+      }, {
+        where: {
+          ID_Lands: req.body.ID_Lands
+        }
+      })
       .then(() => {
         res.json('อัพเดทข้อมูล สำเร็จ')
       })
@@ -488,6 +514,8 @@ land.post('/LandPDF', (req, res) => {
   let count = 0
   let X = 0
   let Y = 0
+  let F = false
+  let IF = false
   let sortX = 0
   let sortY = 0
   imgL.findAll({
@@ -496,7 +524,6 @@ land.post('/LandPDF', (req, res) => {
     }
   }).then(result => {
     images = result
-    console.log(images[0].URL)
   });
   Land.findAll({
       where: {
@@ -510,6 +537,14 @@ land.post('/LandPDF', (req, res) => {
           ID_User: land[0].Owner
         }
       }).then(Owner => {
+        res.setHeader(
+          'Access-Control-Allow-Origin', '*'
+        );
+        res.writeHead(200, {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': 'attachment; filename="' + house[0].ID_Property + '".pdf'
+        });
+        doc.pipe(res)
         request({
           url: uri,
           encoding: null // Prevents Request from converting response to string
@@ -534,7 +569,7 @@ land.post('/LandPDF', (req, res) => {
             height: 10
           });
           doc.text(land[0].Location + ',' + land[0].LDistrict + ',' + land[0].LAmphur + ',' + land[0].LProvince + ' ประเทศไทย ' + land[0].LZipCode, 60, 150).font('service/THSarabun.ttf', 10);
-          doc.text('ประเภทที่ดิน : '+ land[0].ColorType, 50, 162).font('service/THSarabun-Bold.ttf', 14);
+          doc.text('ประเภทที่ดิน : ' + land[0].ColorType, 50, 162).font('service/THSarabun-Bold.ttf', 14);
           doc.image('service/hr.png', 295, 165, {
             width: 10,
             height: 300
@@ -593,7 +628,7 @@ land.post('/LandPDF', (req, res) => {
           doc.text(land[0].LandWA + ' ตารางวา', 60, 415, {
             width: 410
           });
-          doc.text('พื้นที่(กว้าง*ลึก) : '+land[0].Land + ' เมตร', 60, 430, {
+          doc.text('พื้นที่(กว้าง*ลึก) : ' + land[0].Land + ' เมตร', 60, 430, {
             width: 410
           });
           // right
@@ -619,7 +654,7 @@ land.post('/LandPDF', (req, res) => {
           doc.text(land[0].CodeProperty, 200, 210, {
             width: 410
           });
-          doc.text(land[0].Deed , 200, 225, {
+          doc.text(land[0].Deed, 200, 225, {
             width: 410
           });
           doc.text(land[0].CodeDeed, 200, 240, {
@@ -666,49 +701,48 @@ land.post('/LandPDF', (req, res) => {
             width: 250,
             height: 110
           })
-  
+          F = true
+          if (images.length == 0 || IF == true) {
+            doc.end()
+          }
           return;
         });
-        for (var image in images) {
-          console.log(images[image].URL)
-          request({
-            url: images[image].URL,
-            encoding: null // Prevents Request from converting response to string
-          }, function (error, response, body) {
-            count = count+1
-           
-            sortX = sortX+1
-          if(sortX <= 3){
-            doc.image(body, 95+X, 485+Y, {
-              width: 130,
-              height: 110
-            })
-            X = X+140
+        if (images.length != 0) {
+          for (var image in images) {
+            console.log(images[image].URL)
+            request({
+              url: images[image].URL,
+              encoding: null // Prevents Request from converting response to string
+            }, function (error, response, body) {
+              count = count + 1
+
+              sortX = sortX + 1
+              if (sortX <= 3) {
+                doc.image(body, 95 + X, 485 + Y, {
+                  width: 130,
+                  height: 110
+                })
+                X = X + 140
+              } else {
+                Y = Y + 120
+                X = 0
+                doc.image(body, 95 + X, 485 + Y, {
+                  width: 130,
+                  height: 110
+                })
+                sortX = 0
+              }
+              if (count == images.length) {
+                IF = true
+              }
+              if ((count == images.length && F == true) || count == 9) {
+                console.log('END')
+                doc.end()
+              }
+              return;
+            });
           }
-          else{
-            Y = Y+120
-            X = 0
-            doc.image(body, 95+X, 485+Y, {
-              width: 130,
-              height: 110
-            })
-            sortX = 0
-          }
-           
-            if(count == images.length || count== 9){
-              doc.end(); // Close document and, by extension, respons
-            }
-            return;
-          });
-  
         }
-  
-        res.setHeader(
-          'Content-Type', 'application/pdf',
-          'Access-Control-Allow-Origin', '*',
-          'Content-Disposition', 'attachment; filename="' + land[0].ID_Property + '"'
-        );
-        doc.pipe(res)
       });
     })
     .catch(err => {

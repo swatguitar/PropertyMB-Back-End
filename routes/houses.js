@@ -1,11 +1,15 @@
 var express = require('express')
 var house = express.Router()
 const cors = require('cors')
+var path = require('path')
 var multer = require('multer')
 var aws = require('aws-sdk')
 const PDFDocument = require('pdfkit')
-request = require('request')
+var request = require('request')
 var multerS3 = require('multer-s3')
+var FTPStorage = require('multer-ftp')
+var slash = require('slash');
+var sftpStorage = require('multer-sftp')
 const Group = require('../models/Group')
 const jwt = require('jsonwebtoken')
 const db = require('../database/db.js')
@@ -33,12 +37,24 @@ const FileFilter = (req, file, cd) => {
   }
 }
 //************* Config Amazon s3 bucket *************
-aws.config.update({
-  secretAccessKey: 'ue9Y+2yQawDM7fsxuiAb2DMcX5Cikk1xMOhWSegl',
-  accessKeyId: 'AKIAI33B4OH6PHPXRPPQ',
-  region: 'us-east-1'
+/*aws.config.update({
+  secretAccessKey: 'fEtFLDWN+Rnx/HvYfUrmmkLxG9nytXvgo7SqRroq',
+  accessKeyId: 'AKIAJG4QWMVCCPCSNS5A',
+  region: 'us-east-2'
 })
-var s3 = new aws.S3()
+var s3 = new aws.S3()*/
+/*var uploadFTP = multer({
+  storage: new FTPStorage({
+    basepath: '/remote/path',
+    ftp: {
+      host: 'example.com',
+      secure: true, // enables FTPS/FTP with TLS
+      user: 'user',
+      password: 'password'
+    }
+  })
+})*/
+/*
 var uploadS3 = multer({
   limits: {
     fieldSize: 1024 * 1024 * 5 // no larger than 5mb, you can change as needed.
@@ -57,10 +73,85 @@ var uploadS3 = multer({
       cb(null, 'img_' + Date.now() + '.jpg')
     }
   })
+})*/
+/*let Client = require('ssh2-sftp-client');
+let sftp = new Client();
+
+sftp.connect({
+  host: '156.67.222.168',
+  port: 65002,
+  username: 'u656477047',
+  password: 'tar15234'
+}).then(() => {
+  return sftp.list('/home/u656477047/domains/landvist.xyz/public_html/images/NewImg');
+}).then(data => {
+  console.log('')
+  console.log(data, 'the data info');
+}).catch(err => {
+  console.log(err, 'catch error');
+});*/
+
+//************* Config Hostinger bucket *************
+var storage = sftpStorage({
+  sftp: {
+    host: '156.67.222.168',
+    port: 65002,
+    username: 'u656477047',
+    password: 'tar15234',
+
+  },
+  destination: function (req, file, cb) {
+    cb(null, '/domains/landvist.xyz/public_html/images/NewImg');
+  },
+  filename: function (req, file, cb) {
+    cb(null, '/domains/landvist.xyz/public_html/images/NewImg/img_' + Date.now() + '.jpg')
+  }
 })
 
 //** config file **
-const uploadImg = uploadS3.single('file');
+//const uploadImg = uploadS3.single('file');
+var uploadImg = multer({
+  storage: storage
+}).single('file');
+//const uploadImg = uploadFTP.single('file');
+
+//************* Upload image house *************
+house.post('/uploadImageFTP', function (req, res, next) {
+  console.log('HELLOW XX')
+  uploadImg(req, res, function (err) {
+    logger.debug(JSON.stringify(req.body));
+    logger.debug(JSON.stringify(req.files));
+    if (err) {
+      logger.debug("Error Occured", JSON.stringify(err));
+      res.json({
+        error_code: 1,
+        err_desc: err
+      });
+    } else {
+      logger.debug("Files uploaded successfully");
+      res.json({
+        error_code: 0,
+        err_desc: null
+      });
+    }
+  });
+  /*uploadImg(req, res, function (err) {
+
+    if (err instanceof multer.MulterError) {
+      console.log('HELLOW VV')
+    } else if (err) {
+      console.log('HELLOW EE')
+    }
+    console.log('HELLOW XXII')
+    // Everything went fine.
+  })*/
+});
+
+
+
+
+
+
 
 //************* get all house *************
 house.get('/houses', (req, res, next) => {
@@ -284,29 +375,36 @@ house.post('/uploadImageH', function (req, res, next) {
         error: err
       });
     }
+    
+    console.log(req.body)
+    console.log(req.file)
+    console.log(req.file.path)
+    console.log(req.file.filename)
+    req.file.path = slash(req.file.path);
+    console.log(req.file.path)
     const imgData = {
       ID_property: req.body.ID_property,
       URL: null,
       File_Name: null
     }
-    if (req.file) {
-      imgData.URL = req.file.location
-      imgData.File_Name = req.file.filename
-      img.create(imgData)
-        .then(house => {
-          res.json(house)
-        })
-        .catch(err => {
-          res.send('error: ' + err)
-        })
-      House.update({
-        ImageEX: req.file.location
-      }, {
-        where: {
-          ID_Property: req.body.ID_property
-        }
-      })
-    }
+    /* if (req.file) {
+       imgData.URL = "https://landvist.xyz/images/NewImg/"+req.file.filename
+       imgData.File_Name = req.file.filename
+       img.create(imgData)
+         .then(house => {
+           res.json(house)
+         })
+         .catch(err => {
+           res.send('error: ' + err)
+         })
+       House.update({
+         ImageEX: "https://landvist.xyz/images/NewImg/"+req.file.filename
+       }, {
+         where: {
+           ID_Property: req.body.ID_property
+         }
+       })
+     }*/
   });
 });
 
@@ -587,15 +685,18 @@ house.post('/HousePDF', (req, res) => {
   const doc = new PDFDocument({
     size: 'A4'
   })
+
   var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
   let filename = req.body.filename
   let uri = req.body.URL
-  let image = 'https://backendppmb.s3.us-east-2.amazonaws.com/img_1587565164509.jpg'
+  let imageURL = 'https://backendppmb.s3.us-east-2.amazonaws.com/img_1587565164509.jpg'
   let Owner = []
   let images = []
   let count = 0
   let X = 0
   let Y = 0
+  let F = false
+  let IF = false
   let sortX = 0
   let sortY = 0
   img.findAll({
@@ -604,7 +705,6 @@ house.post('/HousePDF', (req, res) => {
     }
   }).then(result => {
     images = result
-    console.log(images[0].URL)
   });
   House.findAll({
       where: {
@@ -618,6 +718,14 @@ house.post('/HousePDF', (req, res) => {
           ID_User: house[0].Owner
         }
       }).then(Owner => {
+        res.setHeader(
+          'Access-Control-Allow-Origin', '*'
+        );
+        res.writeHead(200, {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': 'attachment; filename="' + house[0].ID_Property + '".pdf'
+        });
+        doc.pipe(res)
         request({
           url: uri,
           encoding: null // Prevents Request from converting response to string
@@ -785,48 +893,49 @@ house.post('/HousePDF', (req, res) => {
             width: 250,
             height: 110
           })
-  
+
+          F = true
+          if (images.length == 0 || IF == true) {
+            doc.end()
+          }
           return;
         });
-        for (var image in images) {
-          console.log(images[image].URL)
-          request({
-            url: images[image].URL,
-            encoding: null // Prevents Request from converting response to string
-          }, function (error, response, body) {
-            count = count+1
-           
-            sortX = sortX+1
-          if(sortX <= 3){
-            doc.image(body, 95+X, 485+Y, {
-              width: 130,
-              height: 110
-            })
-            X = X+140
+        if (images.length != 0) {
+          for (var image in images) {
+            console.log(images[image].URL)
+            request({
+              url: images[image].URL,
+              encoding: null // Prevents Request from converting response to string
+            }, function (error, response, body) {
+              count = count + 1
+              console.log('Count:' + count + 'Length:' + images.length)
+              sortX = sortX + 1
+              if (sortX <= 3) {
+                doc.image(body, 95 + X, 485 + Y, {
+                  width: 130,
+                  height: 110
+                })
+                X = X + 140
+              } else {
+                Y = Y + 120
+                X = 0
+                doc.image(body, 95 + X, 485 + Y, {
+                  width: 130,
+                  height: 110
+                })
+                sortX = 0
+              }
+              if (count == images.length) {
+                IF = true
+              }
+              if ((count == images.length && F == true) || count == 9) {
+                console.log('END')
+                doc.end()
+              }
+              return;
+            });
           }
-          else{
-            Y = Y+120
-            X = 0
-            doc.image(body, 95+X, 485+Y, {
-              width: 130,
-              height: 110
-            })
-            sortX = 0
-          }
-           
-            if(count == images.length || count== 9){
-              doc.end(); // Close document and, by extension, respons
-            }
-            return;
-          });
-  
         }
-        res.setHeader(
-          'Content-Type', 'application/pdf',
-          'Access-Control-Allow-Origin', '*',
-          'Content-Disposition', 'attachment; filename="' + house[0].ID_Property + '"'
-        );
-        doc.pipe(res)
       });
 
     })

@@ -32,14 +32,61 @@ recommend.put('/HouseRecommend', (req, res) => {
             res.send('error: ' + err)
         })
 })
+//************* get house by UserType Mobile *************
+recommend.put('/HouseRecommendMobile', (req, res) => {
+  //  var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
 
-//************* get land by UserType *************
+    House.findAll({
+            where: {
+                Owner:  req.body.ID_User,
+                UserType: req.body.UserType
+            } //,offset: 5, limit: 12
+        })
+        .then(house => {
+            if (house) {
+                res.json(house)
+            } else {
+                res.json({
+                    error: "ไม่พบข้อมูล"
+                })
+            }
+        })
+        .catch(err => {
+            res.send('error: ' + err)
+        })
+})
+
+//************* get land by UserType  *************
 recommend.put('/LandRecommend', (req, res) => {
     var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
 
     Land.findAll({
             where: {
                 Owner: decoded.ID_User,
+                UserType: req.body.UserType
+            } //,offset: 5, limit: 12
+        })
+        .then(land => {
+            if (land) {
+                res.json(land)
+            } else {
+                res.json({
+                    error: "ไม่พบข้อมูล"
+                })
+            }
+        })
+        .catch(err => {
+            res.send('error: ' + err)
+        })
+})
+
+//************* get land by UserType Mobile *************
+recommend.put('/LandRecommend', (req, res) => {
+    //var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+
+    Land.findAll({
+            where: {
+                Owner: req.body.ID_User,
                 UserType: req.body.UserType
             } //,offset: 5, limit: 12
         })
