@@ -179,7 +179,7 @@ users.put('/ResetPass', (req, res) => {
   const userData = {
     Password: req.body.Password
   }
-  User.findOne({
+  User.findAll({
       where: {
         Email: req.body.Email,
       }
@@ -213,7 +213,7 @@ users.put('/ResetPass', (req, res) => {
 
 //************* Send email *************
 users.post('/sendEmail', (req, res) => {
-  User.findOne({
+  User.findAll({
       where: {
         Email: req.body.Email,
       }
@@ -282,7 +282,7 @@ users.post('/sendEmail', (req, res) => {
 
 //************* compare token after repassword *************
 users.post('/compareToken', (req, res) => {
-  User.findOne({
+  User.findAll({
       where: {
         Email: req.body.Email,
       }
@@ -332,7 +332,7 @@ users.put('/updateprofile', (req, res) => {
     UserType: req.body.UserType,
     Gender: req.body.Gender,
   }
-  User.findOne({
+  User.findAll({
       where: {
         ID_User: decoded.ID_User,
       }
