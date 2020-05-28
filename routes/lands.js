@@ -21,7 +21,7 @@ process.env.SECRET_KEY = 'secret'
 land.use(cors())
 
 //************* Config Hostinger bucket *************
-var storage = sftpStorage({
+/*var storage = sftpStorage({
   sftp: {
     host: '156.67.222.168',
     port: 65002,
@@ -35,7 +35,7 @@ var storage = sftpStorage({
   filename: function (req, file, cb) {
     cb(null, 'img_' + Date.now() + '.jpg')
   }
-})
+})*/
 
 //************* FileFilter to filter image before upload *************
 const FileFilter = (req, file, cd) => {
@@ -47,9 +47,9 @@ const FileFilter = (req, file, cd) => {
   }
 }
 //************* Config Amazon s3 bucket *************
-/*aws.config.update({
-  secretAccessKey: 'FOwpx/09x7mWBwtuRa6GoILjKER23RQbOvKqxU9/',
-  accessKeyId: 'AKIAIH5UYQ4D2YZCUDEA',
+aws.config.update({
+  secretAccessKey: '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',
+  accessKeyId: 'AKIAJG4QWMVCCPCSNS5A',
   region: 'us-east-2'
 })
 var s3 = new aws.S3()
@@ -71,13 +71,13 @@ var uploadS3 = multer({
       cb(null, 'img_' + Date.now() + '.jpg')
     }
   })
-})*/
+})
 
 //** config file **
-//const uploadImg = uploadS3.single('file');
-var uploadImg = multer({
+const uploadImg = uploadS3.single('file');
+/*var uploadImg = multer({
   storage: storage
-}).single('file');
+}).single('file');*/
 //const uploadImg = uploadFTP.single('file');
 
 //************* get all Land *************
@@ -307,7 +307,7 @@ land.post('/uploadImageL', function (req, res, next) {
       File_Name: null
     }
     if (req.file) {
-      imgData.URL = "https://landvist.xyz/images/NewImg/"+req.file.filename
+      imgData.URL = req.file.location
       imgData.File_Name = req.file.filename
       imgL.create(imgData)
         .then(land => {
@@ -317,7 +317,7 @@ land.post('/uploadImageL', function (req, res, next) {
           res.send('error: ' + err)
         })
       Land.update({
-        ImageEX: "https://landvist.xyz/images/NewImg/"+req.file.filename
+        ImageEX: req.file.location
       }, {
         where: {
           ID_Lands: req.body.ID_lands

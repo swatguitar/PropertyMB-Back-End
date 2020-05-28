@@ -37,12 +37,12 @@ const FileFilter = (req, file, cd) => {
   }
 }
 //************* Config Amazon s3 bucket *************
-/*aws.config.update({
+aws.config.update({
   secretAccessKey: 'fEtFLDWN+Rnx/HvYfUrmmkLxG9nytXvgo7SqRroq',
   accessKeyId: 'AKIAJG4QWMVCCPCSNS5A',
   region: 'us-east-2'
 })
-var s3 = new aws.S3()*/
+var s3 = new aws.S3()
 /*var uploadFTP = multer({
   storage: new FTPStorage({
     basepath: '/remote/path',
@@ -54,7 +54,7 @@ var s3 = new aws.S3()*/
     }
   })
 })*/
-/*
+
 var uploadS3 = multer({
   limits: {
     fieldSize: 1024 * 1024 * 5 // no larger than 5mb, you can change as needed.
@@ -73,7 +73,7 @@ var uploadS3 = multer({
       cb(null, 'img_' + Date.now() + '.jpg')
     }
   })
-})*/
+})
 /*let Client = require('ssh2-sftp-client');
 let sftp = new Client();
 
@@ -92,7 +92,7 @@ sftp.connect({
 });*/
 
 //************* Config Hostinger bucket *************
-var storage = sftpStorage({
+/*var storage = sftpStorage({
   sftp: {
     host: '156.67.222.168',
     port: 65002,
@@ -106,13 +106,11 @@ var storage = sftpStorage({
   filename: function (req, file, cb) {
     cb(null, 'img_' + Date.now() + '.jpg')
   }
-})
+})*/
 
 //** config file **
-//const uploadImg = uploadS3.single('file');
-var uploadImg = multer({
-  storage: storage
-}).single('file');
+const uploadImg = uploadS3.single('file');
+//var uploadImg = multer({storage: storage}).single('file');
 //const uploadImg = uploadFTP.single('file');
 
 //************* Upload image house *************
@@ -375,20 +373,13 @@ house.post('/uploadImageH', function (req, res, next) {
         error: err
       });
     }
-    
-    console.log(req.body)
-    console.log(req.file)
-    console.log(req.file.path)
-    console.log(req.file.filename)
-    req.file.path = slash(req.file.path);
-    console.log(req.file.path)
     const imgData = {
       ID_property: req.body.ID_property,
       URL: null,
       File_Name: null
     }
-    /* if (req.file) {
-       imgData.URL = "https://landvist.xyz/images/NewImg/"+req.file.filename
+     if (req.file) {
+       imgData.URL = req.file.location
        imgData.File_Name = req.file.filename
        img.create(imgData)
          .then(house => {
@@ -398,13 +389,13 @@ house.post('/uploadImageH', function (req, res, next) {
            res.send('error: ' + err)
          })
        House.update({
-         ImageEX: "https://landvist.xyz/images/NewImg/"+req.file.filename
+         ImageEX: req.file.location
        }, {
          where: {
            ID_Property: req.body.ID_property
          }
        })
-     }*/
+     }
   });
 });
 
