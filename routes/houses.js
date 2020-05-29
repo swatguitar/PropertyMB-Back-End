@@ -714,7 +714,7 @@ house.post('/HousePDF', (req, res) => {
         );
         res.writeHead(200, {
           'Content-Type': 'application/pdf',
-          'Content-Disposition': 'attachment; filename="' + house[0].ID_Property + '".pdf'
+          'Content-Disposition': 'inline; filename="' + house[0].ID_Property + '".pdf'
         });
         doc.pipe(res)
         request({
