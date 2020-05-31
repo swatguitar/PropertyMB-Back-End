@@ -27,7 +27,7 @@ var storage = sftpStorage({
 
   },
   destination: function (req, file, cb) {
-    cb(null, '/domains/landvist.xyz/public_html/images/NewImg')
+    cb(null, 'domains/landvist.xyz/public_html/images/NewImg')
   },
   filename: function (req, file, cb) {
     cb(null, 'img_' + Date.now() + '.jpg')
@@ -222,7 +222,7 @@ group.post('/uploadimagegroup', function (req, res, next) {
     }
     if (req.file) {
       Group.update({
-          Img: req.file.location
+          Img: "https://landvist.xyz/images/NewImg/"+req.file.filename
         }, {
           where: {
             ID_Group: req.body.ID_Group

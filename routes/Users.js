@@ -34,7 +34,7 @@ var storage = sftpStorage({
 
   },
   destination: function (req, file, cb) {
-    cb(null, '/domains/landvist.xyz/public_html/images/NewImg')
+    cb(null, 'domains/landvist.xyz/public_html/images/NewImg')
   },
   filename: function (req, file, cb) {
     cb(null, 'img_' + Date.now() + '.jpg')
@@ -450,7 +450,7 @@ users.post('/uploadprofile', function (req, res, next) {
       ProfileImg: null
     }
     if (req.file) {
-      imgData.ProfileImg = req.file.location
+      imgData.ProfileImg = "https://landvist.xyz/images/NewImg/"+req.file.filename
       User.update(imgData, {
           where: {
             ID_User: ID.ID_User

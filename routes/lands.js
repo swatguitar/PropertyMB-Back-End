@@ -30,7 +30,7 @@ var storage = sftpStorage({
 
   },
   destination: function (req, file, cb) {
-    cb(null, '/domains/landvist.xyz/public_html/images/NewImg')
+    cb(null, 'domains/landvist.xyz/public_html/images/NewImg')
   },
   filename: function (req, file, cb) {
     cb(null, 'img_' + Date.now() + '.jpg')
@@ -281,7 +281,7 @@ land.post('/uploadImageL', function (req, res, next) {
       File_Name: null
     }
     if (req.file) {
-      imgData.URL = req.file.location
+      imgData.URL = "https://landvist.xyz/images/NewImg/"+req.file.filename
       imgData.File_Name = req.file.filename
       imgL.create(imgData)
         .then(land => {
@@ -291,7 +291,7 @@ land.post('/uploadImageL', function (req, res, next) {
           res.send('error: ' + err)
         })
       Land.update({
-        ImageEX: req.file.location
+        ImageEX: "https://landvist.xyz/images/NewImg/"+req.file.filename
       }, {
         where: {
           ID_Lands: req.body.ID_lands

@@ -48,7 +48,7 @@ const FileFilter = (req, file, cd) => {
   })
 })*/
 
-let Client = require('ssh2-sftp-client');
+/*let Client = require('ssh2-sftp-client');
 let sftp = new Client();
 
 sftp.connect({
@@ -63,7 +63,7 @@ sftp.connect({
   console.log(data, 'the data info');
 }).catch(err => {
   console.log(err, 'catch error');
-});
+});*/
 //************* Config Hostinger bucket *************
 var storage = sftpStorage({
   sftp: {
@@ -355,8 +355,8 @@ house.post('/uploadImageH', function (req, res, next) {
       URL: null,
       File_Name: null
     }
-     /*if (req.file) {
-       imgData.URL = "https://landvist.xyz/images/ImgNew"+req.file.filename
+     if (req.file) {
+       imgData.URL = "https://landvist.xyz/images/NewImg/"+req.file.filename
        imgData.File_Name = req.file.filename
        img.create(imgData)
          .then(house => {
@@ -366,13 +366,13 @@ house.post('/uploadImageH', function (req, res, next) {
            res.send('error: ' + err)
          })
        House.update({
-         ImageEX: req.file.location
+         ImageEX: "https://landvist.xyz/images/NewImg/"+req.file.filename
        }, {
          where: {
            ID_Property: req.body.ID_property
          }
        })
-     }*/
+     }
   });
 });
 
