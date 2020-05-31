@@ -13,13 +13,12 @@ const {
 } = require("sequelize");
 var multer = require('multer')
 var aws = require('aws-sdk')
-var multerS3 = require('multer-s3')
 var sftpStorage = require('multer-sftp')
 
 group.use(cors())
 
 //************* Config Hostinger bucket *************
-/*var storage = sftpStorage({
+var storage = sftpStorage({
   sftp: {
     host: '156.67.222.168',
     port: 65002,
@@ -33,7 +32,7 @@ group.use(cors())
   filename: function (req, file, cb) {
     cb(null, 'img_' + Date.now() + '.jpg')
   }
-})*/
+})
 
 //************* FileFilter to filter image before upload *************
 const FileFilter = (req, file, cd) => {
@@ -44,38 +43,12 @@ const FileFilter = (req, file, cd) => {
     cd(null, false);
   }
 }
-//************* Config Amazon s3 bucket *************
-aws.config.update({
-  secretAccessKey: 'fEtFLDWN+Rnx/HvYfUrmmkLxG9nytXvgo7SqRroq',
-  accessKeyId: 'AKIAJG4QWMVCCPCSNS5A',
-  region: 'us-east-2'
-})
-var s3 = new aws.S3()
-var uploadS3 = multer({
-  limits: {
-    fieldSize: 1024 * 1024 * 5 // no larger than 5mb, you can change as needed.
-  },
-  FileFilter: FileFilter,
-  storage: multerS3({
-    s3: s3,
-    bucket: 'backendppmb',
-    metadata: function (req, file, cb) {
-      cb(null, {
-        fieldName: file.fieldname
-      });
-    },
-    acl: 'public-read',
-    key: function (req, file, cb) {
-      cb(null, 'group_' + Date.now() + '.jpg')
-    }
-  })
-})
+
 
 //** config file **
-const uploadImg = uploadS3.single('file');
-/*var uploadImg = multer({
+var uploadImg = multer({
   storage: storage
-}).single('file');*/
+}).single('file');
 //const uploadImg = uploadFTP.single('file');
 
 //************* get group detail member *************

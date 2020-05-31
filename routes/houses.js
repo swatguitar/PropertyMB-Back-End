@@ -6,7 +6,6 @@ var multer = require('multer')
 var aws = require('aws-sdk')
 const PDFDocument = require('pdfkit')
 var request = require('request')
-var multerS3 = require('multer-s3')
 var FTPStorage = require('multer-ftp')
 var slash = require('slash');
 var sftpStorage = require('multer-sftp')
@@ -36,13 +35,7 @@ const FileFilter = (req, file, cd) => {
     cd(null, false);
   }
 }
-//************* Config Amazon s3 bucket *************
-aws.config.update({
-  secretAccessKey: 'fEtFLDWN+Rnx/HvYfUrmmkLxG9nytXvgo7SqRroq',
-  accessKeyId: 'AKIAJG4QWMVCCPCSNS5A',
-  region: 'us-east-2'
-})
-var s3 = new aws.S3()
+
 /*var uploadFTP = multer({
   storage: new FTPStorage({
     basepath: '/remote/path',
@@ -55,26 +48,7 @@ var s3 = new aws.S3()
   })
 })*/
 
-var uploadS3 = multer({
-  limits: {
-    fieldSize: 1024 * 1024 * 5 // no larger than 5mb, you can change as needed.
-  },
-  FileFilter: FileFilter,
-  storage: multerS3({
-    s3: s3,
-    bucket: 'backendppmb',
-    metadata: function (req, file, cb) {
-      cb(null, {
-        fieldName: file.fieldname
-      });
-    },
-    acl: 'public-read',
-    key: function (req, file, cb) {
-      cb(null, 'img_' + Date.now() + '.jpg')
-    }
-  })
-})
-/*let Client = require('ssh2-sftp-client');
+let Client = require('ssh2-sftp-client');
 let sftp = new Client();
 
 sftp.connect({
@@ -89,10 +63,9 @@ sftp.connect({
   console.log(data, 'the data info');
 }).catch(err => {
   console.log(err, 'catch error');
-});*/
-
+});
 //************* Config Hostinger bucket *************
-/*var storage = sftpStorage({
+var storage = sftpStorage({
   sftp: {
     host: '156.67.222.168',
     port: 65002,
@@ -101,16 +74,16 @@ sftp.connect({
 
   },
   destination: function (req, file, cb) {
-    cb(null, '/domains/landvist.xyz/public_html/images/NewImg');
+   
+    cb(null, 'domains/landvist.xyz/public_html/images/NewImg');
   },
   filename: function (req, file, cb) {
     cb(null, 'img_' + Date.now() + '.jpg')
   }
-})*/
+})
 
 //** config file **
-const uploadImg = uploadS3.single('file');
-//var uploadImg = multer({storage: storage}).single('file');
+var uploadImg = multer({storage: storage}).single('file');
 //const uploadImg = uploadFTP.single('file');
 
 //************* Upload image house *************
@@ -373,13 +346,17 @@ house.post('/uploadImageH', function (req, res, next) {
         error: err
       });
     }
+    
+    console.log(req.file)
+    console.log(req.file.path)
+    //console.log(JSON.parse(req.file.path))
     const imgData = {
       ID_property: req.body.ID_property,
       URL: null,
       File_Name: null
     }
-     if (req.file) {
-       imgData.URL = req.file.location
+     /*if (req.file) {
+       imgData.URL = "https://landvist.xyz/images/ImgNew"+req.file.filename
        imgData.File_Name = req.file.filename
        img.create(imgData)
          .then(house => {
@@ -395,7 +372,7 @@ house.post('/uploadImageH', function (req, res, next) {
            ID_Property: req.body.ID_property
          }
        })
-     }
+     }*/
   });
 });
 

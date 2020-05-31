@@ -13,7 +13,7 @@ var port = process.env.PORT || 3001
 app.use('/ftp', express.static(__dirname + '/uploads/images'), serveIndex('uploads/images', {
   'icons': true
 }));
-
+app.use(express.static(path.join('/home/u656477047/domains/landvist.xyz/public_html/images/NewImg')));
 const aws = require('aws-sdk');
 
 app.set('views', './views');
