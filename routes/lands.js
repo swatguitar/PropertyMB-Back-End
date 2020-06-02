@@ -511,11 +511,9 @@ land.post('/LandPDF', (req, res) => {
           ID_User: land[0].Owner
         }
       }).then(Owner => {
-        res.setHeader(
-          'Access-Control-Allow-Origin', '*'
-        );
         res.writeHead(200, {
           'Content-Type': 'application/pdf',
+          'Access-Control-Allow-Origin': '*',
           'Content-Disposition': 'attachment; filename="' + land[0].ID_Lands + '".pdf'
         });
         doc.pipe(res)

@@ -3,7 +3,7 @@ var house = express.Router()
 const cors = require('cors')
 var path = require('path')
 var multer = require('multer')
-var aws = require('aws-sdk')
+var fs = require('fs')
 const PDFDocument = require('pdfkit')
 var request = require('request')
 var FTPStorage = require('multer-ftp')
@@ -686,11 +686,10 @@ house.post('/HousePDF', (req, res) => {
           ID_User: house[0].Owner
         }
       }).then(Owner => {
-        res.setHeader(
-          'Access-Control-Allow-Origin', '*'
-        );
+      
         res.writeHead(200, {
           'Content-Type': 'application/pdf',
+          'Access-Control-Allow-Origin': '*',
           'Content-Disposition': 'inline; filename="' + house[0].ID_Property + '".pdf'
         });
         doc.pipe(res)
