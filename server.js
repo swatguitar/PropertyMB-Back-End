@@ -70,6 +70,10 @@ app.post('/recommendHouse', (req, res) => { //  https://backendppmb.herokuapp.co
   //var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
   // 'py' is use in cmd python
   console.log("Property ID FN is : " +req.body.ID_Property);
+  console.log("Property ID MB is : " +req.query.ID_Property);
+  if(req.body.ID_Property == null || req.body.ID_Property == ""){
+    req.body.ID_Property = req.query.ID_Property
+  }
   const {
     spawn
   } = require('child_process');
@@ -88,6 +92,10 @@ app.post('/recommendHouse', (req, res) => { //  https://backendppmb.herokuapp.co
 app.post('/recommendLand', (req, res) => {
   //var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
   console.log("Property ID FN is : " +req.body.ID_Lands);
+  console.log("Property ID MB is : " +req.query.ID_Lands);
+  if(req.body.ID_Lands == null || req.body.ID_Lands == ""){
+    req.body.ID_Lands = req.query.ID_Lands
+  }
   const {
     spawn
   } = require('child_process');
