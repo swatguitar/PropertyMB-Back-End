@@ -73,7 +73,7 @@ df_house
 # In[5]:
 
 
-df_house = df_house.replace(np.nan).dropna(subset=['PPStatus'])
+df_house = df_house.dropna(axis='rows')
 df_house
 
 

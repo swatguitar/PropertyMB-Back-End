@@ -72,7 +72,7 @@ df_land
 # #### Drop Rows with missing Values
 
 # In[5]:
-df_land_droped = df_land.replace(np.nan).dropna(subset=['RoadType'])
+df_land_droped = df_land.dropna(axis='rows')
 df_land_droped
 
 
