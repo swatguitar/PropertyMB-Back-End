@@ -44,7 +44,7 @@
     "python-shell": "^1.0.8",
     "randomatic": "^3.1.1",
     "restify": "^8.5.1",
-    "sequelize": "^4.38.0",
+    "sequelize": "^5.15.1",
     "serve-index": "^1.9.1",
     "slash": "^3.0.0",
     "ssh2-sftp-client": "^2.5.2",
