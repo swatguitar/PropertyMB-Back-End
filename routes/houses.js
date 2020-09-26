@@ -20,7 +20,7 @@ const Land = require('../models/Land')
 const img = require('../models/ImgProperty')
 const imgL = require('../models/ImgLand')
 const User = require('../models/User')
-
+var ID_USER = null;
 process.env.SECRET_KEY = 'secret'
 house.use(cors())
 
@@ -74,8 +74,8 @@ var storage = sftpStorage({
 
   },
   destination: function (req, file, cb) {
-   
-    cb(null, 'domains/landvist.xyz/public_html/images/NewImg');
+
+    cb(null, 'domains/landvist.xyz/public_html/images/UploadImg/');
   },
   filename: function (req, file, cb) {
     cb(null, 'img_' + Date.now() + '.jpg')
@@ -83,7 +83,9 @@ var storage = sftpStorage({
 })
 
 //** config file **
-var uploadImg = multer({storage: storage}).single('file');
+var uploadImg = multer({
+  storage: storage
+}).single('file');
 //const uploadImg = uploadFTP.single('file');
 
 //************* Upload image house *************
@@ -280,29 +282,17 @@ house.put('/house/DeleteImage', (req, res, next) => {
       }
     }).then(Image => {
       if (Image) {
-        data = Image.map(row => {
-          return row.File_Name
-        });
-        if (data != null) {
-          params = {
-            Bucket: 'backendppmb',
-            Key: data[0]
-          };
-          s3.deleteObject(params, function (err, data) {
-            if (err) console.log(err, err.stack); // error
-            else console.log(data); // deleted
-          });
-          img.destroy({
-              where: {
-                ID_Photo: req.body.ID_Photo
-              }
-            }).then(() => {
-              res.json('ลบรูปภาพเสำเร็จ')
-            })
-            .catch(err => {
-              res.json('error: ' + err)
-            })
-        }
+        img.destroy({
+            where: {
+              ID_Photo: req.body.ID_Photo
+            }
+          }).then(() => {
+            res.json('ลบรูปภาพเสำเร็จ')
+          })
+          .catch(err => {
+            res.json('error: ' + err)
+          })
+
       } else {
         res.json({
           error: "ไม่พบรูปภาพ"
@@ -339,40 +329,40 @@ house.put('/UpdateStatus', (req, res, next) => {
 })
 
 //************* Upload image house *************
-house.post('/uploadImageH', function (req, res, next) {
+house.post('/uploadImageH', function async (req, res, next) {
   uploadImg(req, res, function (err) {
     if (err) {
       res.json({
         error: err
       });
     }
-    
+
     console.log(req.file)
     console.log(req.file.path)
-    //console.log(JSON.parse(req.file.path))
     const imgData = {
       ID_property: req.body.ID_property,
       URL: null,
       File_Name: null
     }
-     if (req.file) {
-       imgData.URL = "https://landvist.xyz/images/NewImg/"+req.file.filename
-       imgData.File_Name = req.file.filename
-       img.create(imgData)
-         .then(house => {
-           res.json(house)
-         })
-         .catch(err => {
-           res.send('error: ' + err)
-         })
-       House.update({
-         ImageEX: "https://landvist.xyz/images/NewImg/"+req.file.filename
-       }, {
-         where: {
-           ID_Property: req.body.ID_property
-         }
-       })
-     }
+
+    if (req.file) {
+      imgData.URL = "https://landvist.xyz/images/UploadImg/" + req.file.filename
+      imgData.File_Name = req.file.filename
+      img.create(imgData)
+        .then(house => {
+          res.json(house)
+        })
+        .catch(err => {
+          res.send('error: ' + err)
+        })
+      House.update({
+        ImageEX: "https://landvist.xyz/images/UploadImg/" + req.file.filename
+      }, {
+        where: {
+          ID_Property: req.body.ID_property
+        }
+      })
+    }
   });
 });
 
@@ -686,7 +676,7 @@ house.post('/HousePDF', (req, res) => {
           ID_User: house[0].Owner
         }
       }).then(Owner => {
-      
+
         res.writeHead(200, {
           'Content-Type': 'application/pdf',
           'Access-Control-Allow-Origin': '*',
@@ -862,7 +852,7 @@ house.post('/HousePDF', (req, res) => {
           })
 
           F = true
-          console.log('F:'+F)
+          console.log('F:' + F)
           if (images.length == 0 || IF == true) {
             doc.end()
           }

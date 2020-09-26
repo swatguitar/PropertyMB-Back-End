@@ -73,7 +73,7 @@ df_house
 # In[5]:
 
 
-df_house = df_house.dropna(axis='rows')
+df_house = df_house.replace(np.nan).dropna(subset=['PPStatus'])
 df_house
 
 
@@ -130,7 +130,7 @@ df_house_select
 
 import pickle
 print(pickle.format_version)
-readdict_file = open('Model_Pickle_giniHouse_V02.pkl', 'rb')
+readdict_file = open('Model_Pickle_giniHouse_V04.pkl', 'rb')
 classification_dict = pickle.load(readdict_file)
 readdict_file.close
 

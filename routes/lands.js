@@ -210,29 +210,16 @@ land.put('/land/DeleteImage', (req, res, next) => {
       }
     }).then(Image => {
       if (Image) {
-        data = Image.map(row => {
-          return row.File_Name
-        });
-        if (data != null) {
-          params = {
-            Bucket: 'backendppmb',
-            Key: data[0]
-          };
-          s3.deleteObject(params, function (err, data) {
-            if (err) console.log(err, err.stack); // error
-            else console.log(data); // deleted
-          });
-          img.destroy({
-              where: {
-                ID_Photo: req.body.ID_Photo
-              }
-            }).then(() => {
-              res.json('ลบรูปภาพเสำเร็จ')
-            })
-            .catch(err => {
-              res.json('error: ' + err)
-            })
-        }
+        img.destroy({
+            where: {
+              ID_Photo: req.body.ID_Photo
+            }
+          }).then(() => {
+            res.json('ลบรูปภาพเสำเร็จ')
+          })
+          .catch(err => {
+            res.json('error: ' + err)
+          })
       } else {
         res.json({
           error: "ไม่พบรูปภาพ"
@@ -281,7 +268,7 @@ land.post('/uploadImageL', function (req, res, next) {
       File_Name: null
     }
     if (req.file) {
-      imgData.URL = "https://landvist.xyz/images/NewImg/"+req.file.filename
+      imgData.URL = "https://landvist.xyz/images/NewImg/" + req.file.filename
       imgData.File_Name = req.file.filename
       imgL.create(imgData)
         .then(land => {
@@ -291,7 +278,7 @@ land.post('/uploadImageL', function (req, res, next) {
           res.send('error: ' + err)
         })
       Land.update({
-        ImageEX: "https://landvist.xyz/images/NewImg/"+req.file.filename
+        ImageEX: "https://landvist.xyz/images/NewImg/" + req.file.filename
       }, {
         where: {
           ID_Lands: req.body.ID_lands
@@ -674,7 +661,7 @@ land.post('/LandPDF', (req, res) => {
             height: 110
           })
           F = true
-          console.log('F:'+F)
+          console.log('F:' + F)
           if (images.length == 0 || IF == true) {
             doc.end()
           }

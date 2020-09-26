@@ -72,10 +72,9 @@ df_land
 # #### Drop Rows with missing Values
 
 # In[5]:
-
-
-df_land_droped = df_land.dropna(axis='rows')
+df_land_droped = df_land.replace(np.nan).dropna(subset=['RoadType'])
 df_land_droped
+
 
 
 # #### Change String to Numeric Value
@@ -127,7 +126,7 @@ df_land_select
 
 
 import pickle
-readdict_file = open('Model_Pickle_giniLand_V02.pkl', 'rb')
+readdict_file = open('Model_Pickle_giniLand_V04.pkl', 'rb')
 classification_dict = pickle.load(readdict_file)
 readdict_file.close
 
