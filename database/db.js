@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize')
 const db = {}
-const sequelize = new Sequelize('u656477047_ppmb', 'u656477047_user', 'tar15234', {
-  host: '156.67.222.148',
+const sequelize = new Sequelize('u534477618_ppmb', 'u534477618_ppmb', 'Tar15234', {
+  host: '162.159.24.201',
   dialect: 'mysql',
   operatorsAliases: false,
 
