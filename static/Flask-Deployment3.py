@@ -19,10 +19,10 @@ model = pickle.load(open(r'C:\Users\User\Desktop\Dataset_v02\Model_Pickle', 'rb'
 def connection():
     # verification for database connection
     con = mysql.connector.connect(
-            host = "156.67.222.148",
-            user = "u656477047_user",
-            password = "tar15234",
-            database = "u656477047_ppmb",
+            host = "45.84.205.195",
+            user = "u534477618_ppmb",
+            password = "Tar15234",
+            database = "u534477618_ppmb",
             port = "3306"
         )
 
