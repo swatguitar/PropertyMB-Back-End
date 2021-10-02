@@ -74,9 +74,7 @@ app.post('/recommendHouse', (req, res) => { //  https://backendppmb.herokuapp.co
   if(req.body.ID_Property == null || req.body.ID_Property == ""){
     req.body.ID_Property = req.query.ID_Property
   }
-  const {
-    spawn
-  } = require('child_process');
+  const {spawn} = require('child_process');
   const processPY = spawn('python', ['./Model_House_Connect_Database-Debug01.py',
     req.query.ID_Property = req.body.ID_Property,
   ]);
@@ -97,9 +95,9 @@ app.post('/recommendLand', (req, res) => {
     req.body.ID_Lands = req.query.ID_Lands
   }
   const {
-    spawn
+    spawn 
   } = require('child_process');
-  const processPY = spawn('python', ['./Model_Land_Connect_Database-Debug01.py',
+  const processPY = spawn('Python', ['./Model_Land_Connect_Database-Debug01.py',
     req.query.ID_Lands = req.body.ID_Lands,
   ]);
 
