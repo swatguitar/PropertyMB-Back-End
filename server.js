@@ -94,6 +94,7 @@ app.post('/recommendLand', (req, res) => {
   if(req.body.ID_Lands == null || req.body.ID_Lands == ""){
     req.body.ID_Lands = req.query.ID_Lands
   }
+  req.body.ID_Lands = "l5270";
   const {
     spawn 
   } = require('child_process');

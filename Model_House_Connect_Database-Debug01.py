@@ -186,11 +186,11 @@ df_concat
 
 #connect to database
 con = mysql.connector.connect(
-    host = "156.67.222.148",
-    user = "u656477047_user",
-    password = "tar15234",
-    database = "u656477047_ppmb",
-    port = "3306"
+    host = "45.84.205.195",
+        user = "u534477618_ppmb",
+        password = "Tar15234",
+        database = "u534477618_ppmb",
+        port = "3306"
 )
 
 if con.is_connected():
