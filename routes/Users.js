@@ -19,7 +19,7 @@ const transporter = nodemailer.createTransport({
   port: 587, //25, 465, 587 depend on your 
   secure: false, // use SSL
   auth: {
-    user: 'propertymb@landhousevisit.online', // your email
+    user: 'propertymb@landhousevisit.xyz', // your email
     pass: 'Tar15234' // your email password
   }
 });
@@ -27,14 +27,13 @@ const transporter = nodemailer.createTransport({
 //************* Config Hostinger bucket *************
 var storage = sftpStorage({
   sftp: {
-    host: '45.84.205.195',
+    host: '194.163.35.36',
     port: 65002,
-    username: 'u534477618',
-    password: 'Tar15234'
-
+    username: 'u534412661',
+    password: 'Tar15234',
   },
   destination: function (req, file, cb) {
-    cb(null, 'domains/landhousevisit.online/public_html/images/NewImg')
+    cb(null, 'domains/landhousevisit.xyz/public_html/images/NewImg')
   },
   filename: function (req, file, cb) {
     cb(null, 'img_' + Date.now() + '.jpg')
@@ -211,11 +210,11 @@ users.post('/sendEmail', (req, res) => {
             } else {
 
               let mailOptions = {
-                from: '"<PropertyMB Team>" propertymb@landhousevisit.online',
+                from: '"<PropertyMB Team>" propertymb@landhousevisit.xyz',
                 to: user[0].Email,
                 subject: 'คำร้องขอรีเซ็ทรหัสผ่าน PropertyMB',
                 html: '<hr><h2 style="text-align: center">PropertyMB</h2><hr>' +
-                  '<img src="https://www.landhousevisit.online/images/Defult/logo2.png">' +
+                  '<img src="https://www.landhousevisit.xyz/images/Defult/logo2.png">' +
                   '<h3><b>คำร้องขอรีเซ็ทรหัสผ่าน PropertyMB</b></h3>' +
                   '<p>เรียนท่านผู้ใช้งาน</p>' +
                   '<p>ท่านได้ยื่นคำร้องขอรีเซ็ทรหัสผ่านของท่าน และระบบได้ทำการรีเซ็ทรหัสผ่านของท่านแล้ว โปรดใช้รหัสผ่านชั่วคราวด้านล่าง ในการรีเซ็ทรหัสผ่าน</p>' +
@@ -450,7 +449,7 @@ users.post('/uploadprofile', function (req, res, next) {
       ProfileImg: null
     }
     if (req.file) {
-      imgData.ProfileImg = "https://landhousevisit.online/images/NewImg/"+req.file.filename
+      imgData.ProfileImg = "https://landhousevisit.xyz/images/NewImg/"+req.file.filename
       User.update(imgData, {
           where: {
             ID_User: ID.ID_User

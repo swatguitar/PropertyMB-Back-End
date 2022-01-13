@@ -57,7 +57,7 @@ sftp.connect({
   username: 'u534477618',
   password: 'tar15234'
 }).then(() => {
-  return sftp.list('/home/u534477618/domains/landhousevisit.online/public_html/images/NewImg');
+  return sftp.list('/home/u534477618/domains/landhousevisit.xyz/public_html/images/NewImg');
 }).then(data => {
   console.log('')
   console.log(data, 'the data info');
@@ -67,15 +67,15 @@ sftp.connect({
 //************* Config Hostinger bucket *************
 var storage = sftpStorage({
   sftp: {
-    host: '45.84.205.195',
+    host: '194.163.35.36',
     port: 65002,
-    username: 'u534477618',
+    username: 'u534412661',
     password: 'Tar15234',
 
   },
   destination: function (req, file, cb) {
 
-    cb(null, 'domains/landhousevisit.online/public_html/images/UploadImg/');
+    cb(null, 'domains/landhousevisit.xyz/public_html/images/UploadImg/');
   },
   filename: function (req, file, cb) {
     cb(null, 'img_' + Date.now() + '.jpg')
@@ -346,7 +346,7 @@ house.post('/uploadImageH', function async (req, res, next) {
     }
 
     if (req.file) {
-      imgData.URL = "https://landhousevisit.online/images/UploadImg/" + req.file.filename
+      imgData.URL = "https://landhousevisit.xyz/images/UploadImg/" + req.file.filename
       imgData.File_Name = req.file.filename
       img.create(imgData)
         .then(house => {
@@ -356,7 +356,7 @@ house.post('/uploadImageH', function async (req, res, next) {
           res.send('error: ' + err)
         })
       House.update({
-        ImageEX: "https://landhousevisit.online/images/UploadImg/" + req.file.filename
+        ImageEX: "https://landhousevisit.xyz/images/UploadImg/" + req.file.filename
       }, {
         where: {
           ID_Property: req.body.ID_property

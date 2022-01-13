@@ -23,14 +23,14 @@ land.use(cors())
 //************* Config Hostinger bucket *************
 var storage = sftpStorage({
   sftp: {
-    host: '45.84.205.195',
+    host: '194.163.35.36',
     port: 65002,
-    username: 'u534477618',
-    password: 'Tar15234'
+    username: 'u534412661',
+    password: 'Tar15234',
 
   },
   destination: function (req, file, cb) {
-    cb(null, 'domains/landhousevisit.online/public_html/images/NewImg')
+    cb(null, 'domains/landhousevisit.xyz/public_html/images/NewImg')
   },
   filename: function (req, file, cb) {
     cb(null, 'img_' + Date.now() + '.jpg')
@@ -268,7 +268,7 @@ land.post('/uploadImageL', function (req, res, next) {
       File_Name: null
     }
     if (req.file) {
-      imgData.URL = "https://landhousevisit.online/images/NewImg/" + req.file.filename
+      imgData.URL = "https://landhousevisit.xyz/images/NewImg/" + req.file.filename
       imgData.File_Name = req.file.filename
       imgL.create(imgData)
         .then(land => {
@@ -278,7 +278,7 @@ land.post('/uploadImageL', function (req, res, next) {
           res.send('error: ' + err)
         })
       Land.update({
-        ImageEX: "https://landhousevisit.online/images/NewImg/" + req.file.filename
+        ImageEX: "https://landhousevisit.xyz/images/NewImg/" + req.file.filename
       }, {
         where: {
           ID_Lands: req.body.ID_lands

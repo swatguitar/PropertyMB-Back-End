@@ -23,10 +23,10 @@ print("connector: {}".format(mysql.connector.__version__))
 
 #connect to database
 con = mysql.connector.connect(
-    host = "45.84.205.195",
-        user = "u534477618_ppmb",
+       host = "194.163.35.36",
+        user = "u534412661_ppmb",
         password = "Tar15234",
-        database = "u534477618_ppmb",
+        database = "u534412661_ppmb",
         port = "3306"
 )
 
@@ -186,10 +186,10 @@ df_concat
 
 #connect to database
 con = mysql.connector.connect(
-    host = "45.84.205.195",
-        user = "u534477618_ppmb",
+       host = "194.163.35.36",
+        user = "u534412661_ppmb",
         password = "Tar15234",
-        database = "u534477618_ppmb",
+        database = "u534412661_ppmb",
         port = "3306"
 )
 
