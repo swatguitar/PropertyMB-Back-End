@@ -55,7 +55,7 @@ var uploadImg = multer({
       user: 'u534412661',
       password: 'Tar15234'
     },destination: function (req, file, options, callback) {
-      callback(null, 'img_' + Date.now() + '.jpg') // custom file destination, file extension is added to the end of the path
+      callback(null, 'images/NewImg/img_' + Date.now() + '.jpg') // custom file destination, file extension is added to the end of the path
     }
   })
 }).single('file');
@@ -232,7 +232,7 @@ group.post('/uploadimagegroup', function (req, res, next) {
     }
     if (req.file) {
       Group.update({
-          Img: "https://landhousevisit.xyz/images/NewImg/"+req.file.path
+          Img: "https://landhousevisit.xyz/"+req.file.path
         }, {
           where: {
             ID_Group: req.body.ID_Group

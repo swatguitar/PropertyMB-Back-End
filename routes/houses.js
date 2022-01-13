@@ -92,7 +92,7 @@ var uploadImg = multer({
       user: 'u534412661',
       password: 'Tar15234'
     },destination: function (req, file, options, callback) {
-      callback(null, 'img_' + Date.now() + '.jpg') // custom file destination, file extension is added to the end of the path
+      callback(null, 'images/UploadImg/img_' + Date.now() + '.jpg') // custom file destination, file extension is added to the end of the path
     }
   })
 }).single('file');
@@ -356,7 +356,7 @@ house.post('/uploadImageH', function async (req, res, next) {
     }
 
     if (req.file) {
-      imgData.URL = "http://landhousevisit.xyz/images/UploadImg/" + req.file.path
+      imgData.URL = "http://landhousevisit.xyz/" + req.file.path
       imgData.File_Name = req.file.filename
       img.create(imgData)
         .then(house => {
@@ -366,7 +366,7 @@ house.post('/uploadImageH', function async (req, res, next) {
           res.send('error: ' + err)
         })
       House.update({
-        ImageEX: "http://landhousevisit.xyz/images/UploadImg/" + req.file.path
+        ImageEX: "http://landhousevisit.xyz/" + req.file.path
       }, {
         where: {
           ID_Property: req.body.ID_property

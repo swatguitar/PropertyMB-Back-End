@@ -61,7 +61,7 @@ var uploadImg = multer({
       user: 'u534412661',
       password: 'Tar15234'
     },destination: function (req, file, options, callback) {
-      callback(null, 'img_' + Date.now() + '.jpg') // custom file destination, file extension is added to the end of the path
+      callback(null, 'images/NewImg/img_' + Date.now() + '.jpg') // custom file destination, file extension is added to the end of the path
     }
   })
 }).single('file');
@@ -459,7 +459,7 @@ users.post('/uploadprofile', function (req, res, next) {
       ProfileImg: null
     }
     if (req.file) {
-      imgData.ProfileImg = "http://landhousevisit.xyz/images/NewImg/"+req.file.path
+      imgData.ProfileImg = "http://landhousevisit.xyz/"+req.file.path
       User.update(imgData, {
           where: {
             ID_User: ID.ID_User
