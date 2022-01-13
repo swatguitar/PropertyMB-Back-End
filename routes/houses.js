@@ -23,7 +23,7 @@ const User = require('../models/User')
 var ID_USER = null;
 process.env.SECRET_KEY = 'secret'
 house.use(cors())
-
+var FTPStorage = require('multer-ftp')
 
 
 //************* FileFilter to filter image before upload *************
@@ -84,7 +84,17 @@ var storage = sftpStorage({
 
 //** config file **
 var uploadImg = multer({
-  storage: storage
+  storage:  new FTPStorage({
+    basepath: 'images/UploadImg/',
+    ftp: {
+      host: '194.163.35.36',
+      secure: false, // enables FTPS/FTP with TLS
+      user: 'u534412661',
+      password: 'Tar15234'
+    },destination: function (req, file, options, callback) {
+      callback(null, 'img_' + Date.now() + '.jpg') // custom file destination, file extension is added to the end of the path
+    }
+  })
 }).single('file');
 //const uploadImg = uploadFTP.single('file');
 
@@ -346,7 +356,7 @@ house.post('/uploadImageH', function async (req, res, next) {
     }
 
     if (req.file) {
-      imgData.URL = "https://landhousevisit.xyz/images/UploadImg/" + req.file.filename
+      imgData.URL = "http://landhousevisit.xyz/images/UploadImg/" + req.file.path
       imgData.File_Name = req.file.filename
       img.create(imgData)
         .then(house => {
@@ -356,7 +366,7 @@ house.post('/uploadImageH', function async (req, res, next) {
           res.send('error: ' + err)
         })
       House.update({
-        ImageEX: "https://landhousevisit.xyz/images/UploadImg/" + req.file.filename
+        ImageEX: "http://landhousevisit.xyz/images/UploadImg/" + req.file.path
       }, {
         where: {
           ID_Property: req.body.ID_property

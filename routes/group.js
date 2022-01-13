@@ -47,7 +47,17 @@ const FileFilter = (req, file, cd) => {
 
 //** config file **
 var uploadImg = multer({
-  storage: storage
+  storage:  new FTPStorage({
+    basepath: 'images/NewImg/',
+    ftp: {
+      host: '194.163.35.36',
+      secure: false, // enables FTPS/FTP with TLS
+      user: 'u534412661',
+      password: 'Tar15234'
+    },destination: function (req, file, options, callback) {
+      callback(null, 'img_' + Date.now() + '.jpg') // custom file destination, file extension is added to the end of the path
+    }
+  })
 }).single('file');
 //const uploadImg = uploadFTP.single('file');
 
