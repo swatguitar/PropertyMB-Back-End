@@ -14,7 +14,7 @@ const {
 var multer = require('multer')
 var aws = require('aws-sdk')
 var sftpStorage = require('multer-sftp')
-
+var FTPStorage = require('multer-ftp')
 group.use(cors())
 
 //************* Config Hostinger bucket *************

@@ -16,7 +16,7 @@ const imgL = require('../models/ImgLand')
 const User = require('../models/User')
 const db = require('../database/db.js')
 var sftpStorage = require('multer-sftp')
-
+var FTPStorage = require('multer-ftp')
 process.env.SECRET_KEY = 'secret'
 land.use(cors())
 

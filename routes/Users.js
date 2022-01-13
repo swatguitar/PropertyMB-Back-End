@@ -9,7 +9,7 @@ var randomize = require('randomatic');
 var multer = require('multer')
 var aws = require('aws-sdk')
 var sftpStorage = require('multer-sftp')
-
+var FTPStorage = require('multer-ftp')
 process.env.SECRET_KEY = 'secret'
 users.use(cors())
 
