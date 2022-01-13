@@ -459,7 +459,7 @@ users.post('/uploadprofile', function (req, res, next) {
       ProfileImg: null
     }
     if (req.file) {
-      imgData.ProfileImg = "http://landhousevisit.xyz/images/NewImg/"+req.file.filename
+      imgData.ProfileImg = "http://landhousevisit.xyz/images/NewImg/"+req.file.path
       User.update(imgData, {
           where: {
             ID_User: ID.ID_User

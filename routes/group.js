@@ -232,7 +232,7 @@ group.post('/uploadimagegroup', function (req, res, next) {
     }
     if (req.file) {
       Group.update({
-          Img: "https://landhousevisit.xyz/images/NewImg/"+req.file.filename
+          Img: "https://landhousevisit.xyz/images/NewImg/"+req.file.path
         }, {
           where: {
             ID_Group: req.body.ID_Group
